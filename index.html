@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bluetooth Receipt Printer</title>
+
+<style>
+body{
+    font-family: Arial;
+    padding:40px;
+}
+button{
+    padding:12px 20px;
+    margin:10px;
+    font-size:16px;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Bluetooth Receipt Printer</h2>
+
+<button onclick="connectPrinter()">Connect Printer</button>
+<button onclick="printReceipt()">Print Receipt</button>
+
+<script>
+
+let printerDevice;
+let printerCharacteristic;
+
+// ESC/POS encoder
+function encodeText(text){
+    return new TextEncoder().encode(text);
+}
+
+async function connectPrinter(){
+
+    try{
+
+        printerDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices:true,
+            optionalServices:['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+
+        const server = await printerDevice.gatt.connect();
+
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+
+        printerCharacteristic =
+            await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        alert("Printer Connected");
+
+    }catch(error){
+        console.log(error);
+        alert("Connection Failed");
+    }
+
+}
+
+async function printReceipt(){
+
+    if(!printerCharacteristic){
+        alert("Connect printer first");
+        return;
+    }
+
+    let receipt = "";
+
+    receipt += "\x1B\x40";           // initialize
+    receipt += "\x1B\x61\x01";       // center
+    receipt += "MY STORE\n";
+    receipt += "--------------------------\n";
+    receipt += "\x1B\x61\x00";       // left
+
+    receipt += "Burger        5.00\n";
+    receipt += "Fries         3.00\n";
+
+    receipt += "--------------------------\n";
+    receipt += "\x1B\x61\x02";       // right
+    receipt += "TOTAL: 8.00\n\n";
+
+    receipt += "\x1B\x61\x01";
+    receipt += "Thank You!\n\n\n";
+
+    receipt += "\x1D\x56\x41\x10";   // cut paper
+
+    const data = encodeText(receipt);
+
+    try{
+        await printerCharacteristic.writeValue(data);
+        alert("Printed!");
+    }catch(e){
+        console.log(e);
+        alert("Print Failed");
+    }
+
+}
+</script>
+
+</body>
+</html>
