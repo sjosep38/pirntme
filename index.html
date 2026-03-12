@@ -66,23 +66,21 @@ async function printReceipt(){
         return;
     }
 
-    let receipt = "";
 
-    receipt += "\x1B\x40";           // initialize
-    receipt += "\x1B\x61\x01";       // center
-    receipt += "MY STORE\n";
-    receipt += "--------------------------\n";
-    receipt += "\x1B\x61\x00";       // left
+  let receipt = "------ RECEIPT ------\n";
+  cart.forEach(i=>{ receipt+=`${i.name} x${i.qty} ₱${(i.price*i.qty).toFixed(2)}\n`; });
+  receipt+=`Subtotal: ₱${cart.reduce((s,i)=>s+i.price*i.qty,0).toFixed(2)}\n`;
+  if(discountEnabled) receipt+=`Discount: ₱${(cart.reduce((s,i)=>s+i.price*i.qty,0)*DISCOUNT_RATE).toFixed(2)}\n`;
+  receipt+=`VAT: ₱${((cart.reduce((s,i)=>s+i.price*i.qty,0) - (discountEnabled?cart.reduce((s,i)=>s+i.price*i.qty,0)*DISCOUNT_RATE:0))*0.12).toFixed(2)}\n`;
+  receipt+=`TOTAL: ₱${finalTotal.toFixed(2)}\n`;
+  receipt+=`Payment Method: ${method}\n`;
+  receipt+=`Paid: ₱${paid}\n`;
+  receipt+=`Change: ₱${change}\n`;
+  receipt+=`Order Info: ${orderExtraInfo}\n`;
+  receipt+="--------------------\n";
+  alert(receipt); // simulate print
+}
 
-    receipt += "Burger        5.00\n";
-    receipt += "Fries         3.00\n";
-
-    receipt += "--------------------------\n";
-    receipt += "\x1B\x61\x02";       // right
-    receipt += "TOTAL: 8.00\n\n";
-
-    receipt += "\x1B\x61\x01";
-    receipt += "Thank You!\n\n\n";
 
     receipt += "\x1D\x56\x41\x10";   // cut paper
 
@@ -100,3 +98,4 @@ async function printReceipt(){
 </script>
 </body>
 </html>
+
