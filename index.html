@@ -94,9 +94,22 @@ async function printReceipt(){
         alert("Print Failed: " + e);
     }
 }
+    const device = await navigator.bluetooth.requestDevice({
+  filters: [
+    { name: 'POS58C3' }  // Match your printer's Bluetooth name
+  ],
+  optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']  // Your printer service UUID
+});
+
+const server = await device.gatt.connect();
+const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+const printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+console.log('Printer connected!');
 </script>
 </body>
 </html>
+
 
 
 
