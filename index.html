@@ -27,7 +27,7 @@ async function connectPrinter() {
     try {
         printerDevice = await navigator.bluetooth.requestDevice({
             filters: [{ name: 'POS58C3' }], // Your printer name
-           // optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
         });
 
         await connectGatt(printerDevice);
@@ -44,7 +44,7 @@ async function connectPrinter() {
 async function connectGatt(device) {
     const server = await device.gatt.connect();
     const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-    //printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+    printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
     // Listen for disconnection
     device.addEventListener('gattserverdisconnected', async () => {
