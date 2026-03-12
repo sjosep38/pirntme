@@ -1,509 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<title>MASTER KURT FOODHUB</title>
+<title>Bluetooth Receipt Printer</title>
+
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
-body { background:#111; color:white; height:100vh; overflow:hidden; }
-
-/* HEADER */
-.header { position:fixed; top:0; left:0; right:0; height:60px; z-index:1000; background:#111; padding:10px 0; border-bottom:1px solid black; }
-.brand { max-width:100%; overflow:hidden; }
-.categories { display:flex; gap:10px; overflow-x:auto; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; padding:0 10px; }
-.categories::-webkit-scrollbar { display:none; }
-.category { flex:0 0 auto; padding:5px; border:2px solid white; background: linear-gradient(90deg,rgba(139, 40, 224, 1) 0%, rgba(0, 212, 255, 1) 100%); border-radius:50px 20px; cursor:pointer; transition:0.3s; width:100px; text-align:center; }
-.category.active, .category:hover {background: #00C3FF; color:White; border-radius:20px 50px 20px 50px;}
-
-/* MAIN */
-.main-wrapper { display:flex; margin-top:70px; height:calc(100vh - 70px);margin-bottom: 60px; }
-.sidebar { width:80px; background:#111; display:flex; flex-direction:column; align-items:center; padding:20px 0; }
-.sidebar div { margin:20px 0; font-size:22px; cursor:pointer; transition:0.3s; }
-.sidebar div:hover { transform:scale(1.2); }
-.container { flex:1; }
-
-/* PRODUCTS */
-.products-section { flex:3; padding:10px; overflow-y:auto; margin-bottom: 60px;}
-.products { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:5px; }
-.card {background: linear-gradient(90deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%); border:2px solid #00C3FF; border-radius:5px; padding:5px; transition:0.3s; }
-.card:hover { transform:translateY(-5px); }
-.card img { width:100%; height:100px; object-fit:cover; border-radius:5px; }
-.card h5 { margin:1px 0; }
-.card p { font-weight:bold; color:orange; }
-.card i { font-size:20px; cursor:pointer; }
-h4 { margin:1px 0; }
-
-/* CART */
-.cart { flex:1;background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%); padding:10px; display:flex; flex-direction:column; max-height:655px; min-height:654px; border-radius:15px; margin-top:15px}
-.cart-items { flex:1; overflow-y:auto; }
-.cart-item { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; background:#2a2a2a; padding:10px; border-radius:10px; }
-.qty-control { display:flex; gap:5px; align-items:center; }
-.qty-control button { background:orange; border:none; width:25px; height:25px; border-radius:5px; cursor:pointer; font-weight:bold; }
-.summary { margin-top:15px; border-top:1px solid #444; padding-top:10px; }
-.summary div { display:flex; justify-content:space-between; margin:5px 0; }
-.checkout-btn { background:orange; padding:10px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; font-weight:bold; }
-.payment { flex:1; background:#111; display:flex; flex-direction:column; border-radius:15px;}
-.payment-total { text-align:center; margin:5px 0; }
-.payment-total h1 { color:orange; }
-.payment-methods { display:flex; gap:10px; justify-content:center; margin-bottom:20px; }
-.payment-methods button { padding:12px 20px; background:#2a2a2a; border:none; border-radius:8px; color:white; cursor:pointer; font-weight:bold; width:100%; }
-.payment-methods button.active { background:orange; color:black; width:100%; }
-.back-btn1, .back-btn, .confirm-btn { background:orange; padding:10px; border:none; border-radius:8px; cursor:pointer; margin-top:10px; font-weight:bold; width:100%; }
-.back-btn { background:gray; }
-.back-btn1 { background:GREEN; }
-.confirm-btn { background:orange; }
-
-/* Responsive */
-@media(max-width:768px){
-    body{overflow:auto;}
-    .sidebar{display:none;}
-    .main-wrapper{flex-direction:column;height:auto;}
-    .container{flex-direction:column;}
-    .products-section{height:auto;}
+body{
+    font-family: Arial;
+    padding:40px;
 }
-
-/* Bottom Navigation Bar */
-.navbar { position:fixed; bottom:0; left:0; right:0; height:62px; background:#161b22; border-top:1px solid #2a2f38; display:flex; justify-content:space-around; align-items:center; z-index:999; }
-.nav-item { text-align:center; color:#8b95a1; font-size:0.75rem; flex:1; padding-top:6px; text-decoration:none; transition:color 0.2s, font-weight 0.2s; cursor:pointer; }
-.nav-item span { display:block; font-size:1.2rem; margin-bottom:3px; transition: transform 0.2s; }
-.nav-item:hover span { transform:scale(1.1); }
-.nav-item.active { color:#58a6ff; font-weight:bold; text-decoration:underline; }
-.nav-item.active span { transform:scale(1.9); }
-
-.modal { display:none; position:fixed; z-index:999; top:0; width:100%; height:100%;border-radius:8px; background:#111;}
-.modal-content { background:#111; margin-top:50px; width:100%; border-radius:8px; height:100%;  padding:10px; overflow-y:auto; align-items:center; }
-.close { float:right; font-size:25px; cursor:pointer; color:black; }
-
-button.active{background:orange;color:black;}
+button{
+    padding:12px 20px;
+    margin:10px;
+    font-size:16px;
+}
 </style>
+
 </head>
 <body>
 
-<div class="header">
-<div class="brand">
-<div class="categories">
-<div class="category active" onclick="filterCategory('All', event)">All</div>
-<div class="category" onclick="filterCategory('Pizza', event)">Pizza</div>
-<div class="category" onclick="filterCategory('Drinks', event)">Drinks</div>
-<div class="category" onclick="filterCategory('Dessert', event)">Dessert</div>
-<div class="category" onclick="filterCategory('Coffee', event)">Coffee</div>
-<div class="category" onclick="filterCategory('Fried', event)">Fried</div>
-<div class="category" onclick="filterCategory('Silog', event)">Silog</div>
-<div class="category" onclick="filterCategory('Shake', event)">Shake</div>
-</div>
-</div>
-</div>
+<h2>Bluetooth Receipt Printer</h2>
 
-<div class="main-wrapper">
-<div class="container">
-<div class="products-section">
-<div class="products" id="productList"></div>
-</div>
-</div>
-</div>
-
-<nav class="navbar">
-  <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 VIEW CART</a>
-  <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY NOW</a>
-  <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>
-</nav>
-
-<!-- CART MODAL -->
-<div id="logsModal" class="modal">
-<div class="modal-content">
-<span class="close" onclick="closeModal('logsModal')"></span>
-<div class="cart">
-<h2>Cart</h2>
-<div class="cart-items" id="cartItems"></div>
-<div class="summary">
-<div><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
-<div><span>Discount</span><span id="Discount">₱0.00</span></div>
-<div><span>VAT 12%</span><span id="VAT">₱0.00</span></div>
-<div><strong>Total</strong><strong id="total">₱0.00</strong></div>
-</div>
-<div id="orderTypeButtons" style="display:flex;flex-direction:rows;gap:5px;margin-bottom:5px; border:none; border-radius:8px;  font-weight:bold; width:100%;">
-<button class="back-btn" onclick="closeModal('logsModal')" style="width:33%">⬅ Back</button>
-<button class="checkout-btn" onclick="PaymentModal()" style="width:33%">Proceed</button>
-<button class="back-btn1" onclick="applyDiscount()" style="width:33%">Discount</button>
-</div>
-</div>
-</div>
-</div>
-
-<!-- PAYMENT MODAL -->
-<div id="PaymentModal" class="modal">
-<div class="modal-content">
-<span class="close" onclick="closeModal('PaymentModal')"></span>
-<div class="payment" id="paymentSection" style="display:none; flex-direction:column;">
-
-<div style="margin-bottom:10px; text-align:center;">
-  <button onclick="connectPrinter()" style="padding:10px 20px; font-weight:bold; border:none; border-radius:8px; background:#2a2a2a; color:white; cursor:pointer;">
-    🔌 Connect Printer
-  </button>
-</div>
-
-<div id="orderTypeOptionsContainer" style="background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%); padding:10px; border-radius:8px; margin-top:10px; font-weight:bold; width:100%;">
-<h4>Order Type</h4>
-<div id="orderTypeOptions" style="display:flex;flex-direction:rows;gap:5px;margin-bottom:5px; width:100%;">
-<button onclick="selectOrderType('TakeOut',event)" style="width:33%">🥡 TakeOut</button>
-<button onclick="selectOrderType('DineIn',event)" style="width:33%">🍽️ Dinning</button>
-<button onclick="selectOrderType('Delivery',event)" style="width:33%">🛵 Delivery</button>
-</div>
-</div>
-
-<!-- Inputs for order types -->
-<div id="takeOutInput" style="display:none;">
-<label><b>Nickname (Max of 13 Characters)</b></label>
-<input id="nicknameInput" placeholder="e.g Juan" maxlength="13" style="width:100%; font-size:22px; text-align:center; letter-spacing:3px; border-radius:6px; border:none;margin-top:5px;">
-</div>
-
-<div id="dineInput" style="display:none;">
-<label><b>Customer Seat Number (1-50)</b></label>
-<input id="tableInput" type="number" min="1" max="50" placeholder="e.g 2" style="width:100%; font-size:22px; text-align:center; letter-spacing:3px; border-radius:6px; border:none;margin-top:5px;">
-</div>
-
-<div id="deliveryInput" style="display:none;">
-<label><b>Mobile Number</b></label>
-<input id="mobileInput" type="tel" placeholder="e.g. 09506825698" maxlength="11" style="width:100%; font-size:22px; text-align:center; letter-spacing:3px; border-radius:6px; border:none;margin-top:5px;">
-</div>
-
-<div class="PaymentOption" style="background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%); margin-bottom:5px; padding:10px; border-radius:8px; margin-top:10px; font-weight:bold; width:100%;">
-<h4>Payment Option</h4>
-<div class="payment-methods">
-<button onclick="selectPayment('Cash', event)">💵 Cash</button>
-<button onclick="selectPayment('Card', event)">💳 GCash</button>
-</div>
-<div class="cart-items" id="paymentCartItems"></div>
-<div class="payment-total">
-<h3>Total Amount</h3>
-<h1 id="paymentTotal">₱0.00</h1>
-</div>
-
-<div id="cashForm" style="display:none; margin-top:10px;">
-<label><b>Cash Received:</b></label>
-<input type="number" id="cashInput" placeholder="" maxlength="5" style="width:100%; font-size:22px; text-align:center; letter-spacing:3px; border-radius:6px; border:none;margin-top:5px;">
-<div style="margin-top:10px;">
-<strong>Change: <span id="changeAmount">₱0.00</span></strong>
-<button class="confirm-btn" onclick="confirmCashPayment();">Confirm  Cash Payment</button>
-</div>
-</div>
-
-<div id="cardQR" style="display:none; text-align:center; margin-top:5px;">
-<p>Scan QR to Pay</p>
-<button onclick="simulateCardPayment()" style="padding:10px 20px;background:orange;border:none;border-radius:8px;cursor:pointer;width:100%;"><b>Confirm  GCash Payment</b></button>
-</div>
-
-<div class="payment-actions">
-<button class="back-btn" onclick="goBack()">⬅ Back</button>
-<br>
-</div>
-</div>
-</div>
-</div>
+<button onclick="connectPrinter()">Connect Printer</button>
+<button onclick="printReceipt()">Print Receipt</button>
 
 <script>
-// ================= VARIABLES =================
-const TAX_RATE = 0.00; // can adjust if needed
-const products = [
-  {id:1,name:"Burger",category:"Food",price:150,image:"https://via.placeholder.com/150"},
-  {id:2,name:"Pizza",category:"Food",price:250,image:"https://via.placeholder.com/150"},
-  {id:3,name:"Cola",category:"Drinks",price:50,image:"https://via.placeholder.com/150"},
-  {id:4,name:"Juice",category:"Drinks",price:80,image:"https://via.placeholder.com/150"},
-];
 
-let cart = [];
-let selectedPaymentMethod = "";
-let finalTotal = 0;
-let currentCategory = "All";
-let selectedOrderType = "";
-let orderExtraInfo = "";
-let discountEnabled = false;
-let DISCOUNT_RATE = 0;
-
-// ================= BLUETOOTH VARIABLES =================
 let printerDevice;
 let printerCharacteristic;
-function encodeText(text){ return new TextEncoder().encode(text); }
+
+// ESC/POS encoder
+function encodeText(text){
+    return new TextEncoder().encode(text);
+}
+
 async function connectPrinter(){
+
     try{
-        printerDevice = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:['000018f0-0000-1000-8000-00805f9b34fb']});
+
+        printerDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices:true,
+            optionalServices:['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+
         const server = await printerDevice.gatt.connect();
+
         const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-        alert("✅ Printer Connected!");
-    }catch(error){ console.log(error); alert("❌ Printer Connection Failed"); }
-}
 
-// ================= RENDER PRODUCTS =================
-function renderProducts(list){
-  const container=document.getElementById("productList");
-  container.innerHTML=list.map(p=>{ 
-    const item=cart.find(i=>i.id===p.id); 
-    const qty=item?item.qty:0;
-    return `<div class="card">
-      <img src="${p.image}" alt="${p.name}">
-      <h5>${p.name}</h5>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <p>₱${p.price.toFixed(2)}</p>
-        ${qty===0?`<i class="fas fa-shopping-cart" onclick="addToCart(${p.id})"></i>`:
-        `<div style="display:flex;align-items:center;gap:5px;">
-          <button onclick="changeQty(${p.id},-1)" style="width:24px;height:24px;border:none;border-radius:5px;background:orange;font-weight:bold;">-</button>
-          <span>${qty}</span>
-          <button onclick="changeQty(${p.id},1)" style="width:24px;height:24px;border:none;border-radius:5px;background:orange;font-weight:bold;">+</button>
-        </div>`}
-      </div>
-    </div>`;
-  }).join("");
-}
+        printerCharacteristic =
+            await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
-// ================= CATEGORY FILTER =================
-function filterCategory(cat,e){
-  currentCategory=cat;
-  document.querySelectorAll('.category').forEach(c=>c.classList.remove('active'));
-  e.target.classList.add('active');
-  renderProducts(cat==="All"?products:products.filter(p=>p.category===cat));
-}
+        alert("Printer Connected");
 
-// ================= CART FUNCTIONS =================
-function addToCart(id){ 
-  const product=products.find(p=>p.id===id); 
-  const item=cart.find(i=>i.id===id); 
-  item?item.qty++:cart.push({...product,qty:1}); 
-  renderCart(); 
-}
-function changeQty(id,c){ 
-  const item=cart.find(i=>i.id===id); 
-  if(!item)return; 
-  item.qty+=c; 
-  if(item.qty<=0) removeItem(id); 
-  else renderCart(); 
-}
-function removeItem(id){ cart=cart.filter(i=>i.id!==id); renderCart(); }
-function renderCart(){
-  const container=document.getElementById("cartItems");
-  container.innerHTML=cart.map(item=>`<div class="cart-item">
-    <div>${item.name}<br>₱${item.price.toFixed(2)}</div>
-    <div class="qty-control">
-      <button onclick="changeQty(${item.id},-1)" style="width:24px;height:24px;border:none;border-radius:5px;background:orange;font-weight:bold;">-</button>
-      ${item.qty}
-      <button onclick="changeQty(${item.id},1)" style="width:24px;height:24px;border:none;border-radius:5px;background:orange;font-weight:bold;">+</button>
-      <button onclick="removeItem(${item.id})">X</button>
-   </div></div>`).join("");
-  updateSummary();
-  renderProducts(currentCategory==="All"?products:products.filter(p=>p.category===currentCategory));
-}
-
-// ================= SUMMARY & DISCOUNT =================
-function updateSummary() {
-  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const discountAmount = discountEnabled ? subtotal * DISCOUNT_RATE : 0;
-  const tax = subtotal * TAX_RATE;
-  const VAT = (subtotal - discountAmount) * 0.12;
-
-  finalTotal = subtotal - discountAmount + tax + VAT;
-
-  document.getElementById("subtotal").innerText = `₱${subtotal.toFixed(2)}`;
-  document.getElementById("Discount").innerText = `₱${discountAmount.toFixed(2)}`;
-  document.getElementById("VAT").innerText = `₱${VAT.toFixed(2)}`;
-  document.getElementById("total").innerText = `₱${finalTotal.toFixed(2)}`;
-
-  const paymentTotalEl = document.getElementById("paymentTotal");
-  if(paymentTotalEl) paymentTotalEl.innerText = `₱${finalTotal.toFixed(2)}`;
-}
-
-function applyDiscount() {
-  const type = prompt("Select discount type:\n1 - Senior/PWD (20%)\n2 - Student (5%)\n3 - None");
-  if(type === "1"){
-      const pwd = prompt("Enter password for Senior/PWD discount:");
-      if(pwd !== "1234"){ alert("Incorrect password!"); return; }
-      DISCOUNT_RATE = 0.2; discountEnabled = true; alert("✅ Senior/PWD discount applied!");
-  } else if(type === "2"){
-      const pwd = prompt("Enter password for Student discount:");
-      if(pwd !== "1234"){ alert("Incorrect password!"); return; }
-      DISCOUNT_RATE = 0.05; discountEnabled = true; alert("✅ Student discount applied!");
-  } else if(type === "3"){
-      DISCOUNT_RATE = 0; discountEnabled = false; alert("Discount removed.");
-  } else {
-      alert("Invalid selection."); 
-      return;
-  }
-  updateSummary();
-}
-
-// ================= ORDER TYPE =================
-function selectOrderType(type,e){
-  selectedOrderType=type;
-  document.querySelectorAll("#orderTypeOptions button").forEach(b=>b.classList.remove("active"));
-  e.target.classList.add("active");
-  document.getElementById("takeOutInput")?.style.display="none";
-  document.getElementById("dineInput")?.style.display="none";
-  document.getElementById("deliveryInput")?.style.display="none";
-  if(type==="TakeOut") document.getElementById("takeOutInput").style.display="block";
-  if(type==="DineIn") document.getElementById("dineInput").style.display="block";
-  if(type==="Delivery") document.getElementById("deliveryInput").style.display="block";
-}
-
-// ================= PAYMENT =================
-function PaymentModal(){
-  if(cart.length===0){ alert("Cart is empty!"); return; }
-  openModal("PaymentModal");
-  document.getElementById("paymentSection")?.style.display="flex";
-  selectedPaymentMethod="";
-  document.getElementById("cashForm").style.display="none";
-  document.getElementById("cardQR").style.display="none";
-  document.querySelectorAll(".payment-methods button").forEach(b=>b.classList.remove("active"));
-  document.getElementById("cashInput").value="";
-  document.getElementById("changeAmount").innerText="₱0.00";
-  document.getElementById("paymentTotal").innerText=`₱${finalTotal.toFixed(2)}`;
-}
-
-function selectPayment(method,e){
-  selectedPaymentMethod=method;
-  document.querySelectorAll(".payment-methods button").forEach(b=>b.classList.remove("active"));
-  if(e) e.target.classList.add("active");
-  document.getElementById("cashForm").style.display=(method==="Cash")?"block":"none";
-  document.getElementById("cardQR").style.display=(method==="Card")?"block":"none";
-  document.getElementById("cashInput").value="";
-  document.getElementById("changeAmount").innerText="₱0.00";
-}
-
-document.getElementById('cashInput').addEventListener('input', function() {
-  const cash = parseFloat(this.value) || 0;
-  const change = cash - finalTotal;
-  document.getElementById('changeAmount').textContent = change >= 0 ? `₱${change.toFixed(2)}` : '₱0.00';
-});
-
-function goBack(){ 
-  closeModal("PaymentModal"); 
-  document.getElementById("paymentSection")?.style.display="none"; 
-  selectedPaymentMethod=""; selectedOrderType=""; orderExtraInfo=""; 
-}
-
-// ================= MODAL =================
-function openModal(id){
-    const modal = document.getElementById(id);
-    if(modal) modal.style.display = 'flex';
-}
-
-function closeModal(id){
-    const modal = document.getElementById(id);
-    if(modal) modal.style.display = 'none';
-    if(id === 'PaymentModal'){
-        document.getElementById('paymentSection')?.style.display = 'none';
+    }catch(error){
+        console.log(error);
+        alert("Connection Failed");
     }
+
 }
 
-// Close modal if click outside content
-window.onclick = function(event) {
-    const paymentModal = document.getElementById('PaymentModal');
-    if(event.target === paymentModal) paymentModal.style.display = "none";
-}
+async function printReceipt(){
 
-// ================= CASH & CARD PAYMENT =================
-function confirmCashPayment() {
-  if(!selectedOrderType){ alert("Select Order Type First!"); return; }
-
-  if(selectedOrderType==="TakeOut"){
-      orderExtraInfo = document.getElementById("nicknameInput")?.value.trim();
-      if(!orderExtraInfo){ alert("Enter Nickname"); return; }
-  }
-  if(selectedOrderType==="DineIn"){
-      let table = parseInt(document.getElementById("tableInput")?.value);
-      if(!table || table>50){ alert("Customer seat Number max is 50"); return; }
-      orderExtraInfo = "Table "+table;
-  }
-  if(selectedOrderType==="Delivery"){
-      orderExtraInfo = document.getElementById("mobileInput")?.value.trim();
-      if(orderExtraInfo.length < 11){ alert("Enter valid mobile number"); return; }
-  }
-
-  const cash = parseFloat(document.getElementById("cashInput").value);
-  if(isNaN(cash) || cash < finalTotal){ alert("Not enough cash!"); return; }
-  const change = cash - finalTotal;
-
-  printReceipt("Cash", cash.toFixed(2), change.toFixed(2));
-}
-
-function simulateCardPayment(){
-  if(!selectedOrderType){ alert("Select Order Type First!"); return; }
-
-  if(selectedOrderType==="TakeOut"){
-      orderExtraInfo = document.getElementById("nicknameInput")?.value.trim();
-      if(!orderExtraInfo){ alert("Enter Nickname"); return; }
-  }
-  if(selectedOrderType==="DineIn"){
-      let table = parseInt(document.getElementById("tableInput")?.value);
-      if(!table || table>50){ alert("Customer seat Number max is 50"); return; }
-      orderExtraInfo = "Table "+table;
-  }
-  if(selectedOrderType==="Delivery"){
-      orderExtraInfo = document.getElementById("mobileInput")?.value.trim();
-      if(orderExtraInfo.length < 11){ alert("Enter valid mobile"); return; }
-  }
-
-  printReceipt("GCash", finalTotal.toFixed(2), 0);
-}
-
-// ================= PRINT RECEIPT (SIMULATION) =================
-function printReceipt(method, paid, change){
-  let receipt = "------ RECEIPT ------\n";
-  cart.forEach(i=>{ receipt+=`${i.name} x${i.qty} ₱${(i.price*i.qty).toFixed(2)}\n`; });
-  receipt+=`Subtotal: ₱${cart.reduce((s,i)=>s+i.price*i.qty,0).toFixed(2)}\n`;
-  if(discountEnabled) receipt+=`Discount: ₱${(cart.reduce((s,i)=>s+i.price*i.qty,0)*DISCOUNT_RATE).toFixed(2)}\n`;
-  receipt+=`VAT: ₱${((cart.reduce((s,i)=>s+i.price*i.qty,0) - (discountEnabled?cart.reduce((s,i)=>s+i.price*i.qty,0)*DISCOUNT_RATE:0))*0.12).toFixed(2)}\n`;
-  receipt+=`TOTAL: ₱${finalTotal.toFixed(2)}\n`;
-  receipt+=`Payment Method: ${method}\n`;
-  receipt+=`Paid: ₱${paid}\n`;
-  receipt+=`Change: ₱${change}\n`;
-  receipt+=`Order Info: ${orderExtraInfo}\n`;
-  receipt+="--------------------\n";
-  alert(receipt); // simulate print
-}
-
-// ================= INIT =================
-renderProducts(products);
-</script>
-<script>
-// ================= PRINT RECEIPT =================
-async function printReceipt(paymentMethod, paidAmount, changeAmount) {
-    if (!printerCharacteristic) {
-        alert("❌ Printer not connected!");
+    if(!printerCharacteristic){
+        alert("Connect printer first");
         return;
     }
 
-    let receiptText = "******** MASTER KURT FOODHUB ********\n";
-    receiptText += "Order Type: " + selectedOrderType + "\n";
-    receiptText += orderExtraInfo ? "Info: " + orderExtraInfo + "\n" : "";
-    receiptText += "-------------------------------------\n";
-    cart.forEach(item => {
-        receiptText += `${item.name} x${item.qty}  ₱${(item.price*item.qty).toFixed(2)}\n`;
-    });
-    receiptText += "-------------------------------------\n";
-    receiptText += `Subtotal: ₱${cart.reduce((s,i)=>s+i.price*i.qty,0).toFixed(2)}\n`;
-    receiptText += discountEnabled ? `Discount: ₱${(cart.reduce((s,i)=>s+i.price*i.qty,0)*DISCOUNT_RATE).toFixed(2)}\n` : "";
-    const VAT = (cart.reduce((s,i)=>s+i.price*i.qty,0) - (discountEnabled ? cart.reduce((s,i)=>s+i.price*i.qty,0)*DISCOUNT_RATE : 0)) * 0.12;
-    receiptText += `VAT 12%: ₱${VAT.toFixed(2)}\n`;
-    receiptText += `Total: ₱${finalTotal.toFixed(2)}\n`;
-    receiptText += `Payment: ${paymentMethod} ₱${paidAmount}\n`;
-    if(paymentMethod==="Cash") receiptText += `Change: ₱${changeAmount}\n`;
-    receiptText += "*************************************\n";
-    receiptText += "Thank you for your order!\n\n\n";
+    let receipt = "";
 
-    try {
-        await printerCharacteristic.writeValue(encodeText(receiptText));
-        alert("✅ Receipt Printed!");
-        // Reset cart after printing
-        cart = [];
-        updateSummary();
-        renderCart();
-        closeModal("PaymentModal");
-        closeModal("logsModal");
-    } catch(err) {
-        console.error(err);
-        alert("❌ Failed to print receipt!");
+    receipt += "\x1B\x40";           // initialize
+    receipt += "\x1B\x61\x01";       // center
+    receipt += "MY STORE\n";
+    receipt += "--------------------------\n";
+    receipt += "\x1B\x61\x00";       // left
+
+    receipt += "Burger        5.00\n";
+    receipt += "Fries         3.00\n";
+
+    receipt += "--------------------------\n";
+    receipt += "\x1B\x61\x02";       // right
+    receipt += "TOTAL: 8.00\n\n";
+
+    receipt += "\x1B\x61\x01";
+    receipt += "Thank You!\n\n\n";
+
+    receipt += "\x1D\x56\x41\x10";   // cut paper
+
+    const data = encodeText(receipt);
+
+    try{
+        await printerCharacteristic.writeValue(data);
+        alert("Printed!");
+    }catch(e){
+        console.log(e);
+        alert("Print Failed");
     }
+
 }
 </script>
 </body>
