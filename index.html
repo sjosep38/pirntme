@@ -3,19 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Bluetooth Receipt Printer</title>
-
 <style>
-body{
-    font-family: Arial;
-    padding:40px;
-}
-button{
-    padding:12px 20px;
-    margin:10px;
-    font-size:16px;
-}
+body { font-family: Arial; padding:40px; }
+button { padding:12px 20px; margin:10px; font-size:16px; }
 </style>
-
 </head>
 <body>
 
@@ -25,118 +16,93 @@ button{
 <button onclick="printReceipt()">Print Receipt</button>
 
 <script>
-
 let printerDevice;
 let printerCharacteristic;
 
-// ESC/POS encoder
-function encodeText(text){
+function encodeText(text) {
     return new TextEncoder().encode(text);
 }
 
-async function connectPrinter(){
-
-    try{
-
+async function connectPrinter() {
+    try {
         printerDevice = await navigator.bluetooth.requestDevice({
-            acceptAllDevices:true,
-            optionalServices:['000018f0-0000-1000-8000-00805f9b34fb']
+            filters: [{ name: 'POS58C3' }], // Your printer name
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
         });
 
-        const server = await printerDevice.gatt.connect();
+        await connectGatt(printerDevice);
 
-        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-
-        printerCharacteristic =
-            await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-
-        alert("Printer Connected");
-
-    }catch(error){
+        // Save printer ID for reconnection
+        localStorage.setItem('printerId', printerDevice.id);
+        alert("Printer Connected!");
+    } catch (error) {
         console.log(error);
         alert("Connection Failed");
     }
-
 }
 
-async function printReceipt(){
+async function connectGatt(device) {
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+    printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
-    if(!printerCharacteristic){
+    // Listen for disconnection
+    device.addEventListener('gattserverdisconnected', async () => {
+        console.log('Printer disconnected, reconnecting...');
+        try {
+            await connectGatt(device);
+            console.log('Reconnected!');
+        } catch (err) {
+            console.log('Reconnection failed:', err);
+        }
+    });
+}
+
+async function printReceipt() {
+    if (!printerCharacteristic) {
         alert("Connect printer first");
         return;
     }
 
     let receipt = "";
-
     receipt += "\x1B\x40";           // initialize
     receipt += "\x1B\x61\x01";       // center
     receipt += "MY STORE\n";
     receipt += "--------------------------\n";
     receipt += "\x1B\x61\x00";       // left
-
     receipt += "Burger        5.00\n";
     receipt += "Fries         3.00\n";
-
     receipt += "--------------------------\n";
     receipt += "\x1B\x61\x02";       // right
     receipt += "TOTAL: 8.00\n\n";
-
     receipt += "\x1B\x61\x01";
     receipt += "Thank You!\n\n\n";
-
     receipt += "\x1D\x56\x41\x10";   // cut paper
 
-    const data = encodeText(receipt);
-
-    try{
-        await printerCharacteristic.writeValue(data);
+    try {
+        await printerCharacteristic.writeValue(encodeText(receipt));
         alert("Printed!");
-    }catch(e){
+    } catch (e) {
         console.log(e);
         alert("Print Failed");
     }
-
-}
-const device = await navigator.bluetooth.requestDevice({
-  filters: [
-    { name: 'POS58C3' }  // Match your printer's Bluetooth name
-  ],
-  optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']  // Your printer service UUID
-});
-
-const server = await device.gatt.connect();
-const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-const printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-
-console.log('Printer connected!');
-
-
-localStorage.setItem('printerId', device.id);
-
-const devices = await navigator.bluetooth.getDevices();
-const printer = devices.find(d => d.id === localStorage.getItem('printerId'));
-
-if (printer) {
-    const server = await printer.gatt.connect();
-    const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-    const printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-    console.log('Auto-reconnected to printer!');
 }
 
-printer.addEventListener('gattserverdisconnected', async () => {
-    console.log('Printer disconnected, trying to reconnect...');
-    try {
-        await printer.gatt.connect();
-    } catch (err) {
-        console.log('Reconnection failed:', err);
-    }
-});
-
+// Auto-reconnect on page load
 window.addEventListener('load', async () => {
-    try {
-        await reconnectPrinter();
-    } catch(err) {
-        console.log('Printer not found or not paired:', err);
+    const savedId = localStorage.getItem('printerId');
+    if (savedId) {
+        try {
+            const devices = await navigator.bluetooth.getDevices();
+            const device = devices.find(d => d.id === savedId);
+            if (device) {
+                printerDevice = device;
+                await connectGatt(device);
+                console.log('Auto-reconnected to printer!');
+            }
+        } catch (err) {
+            console.log('Printer not found or not paired:', err);
+        }
     }
 });
 </script>
