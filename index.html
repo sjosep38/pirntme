@@ -25,76 +25,79 @@ button{
 <button onclick="printReceipt()">Print Receipt</button>
 
 <script>
-let cart = [
-    { name: "Apple", qty: 2, price: 50 },
-    { name: "Banana", qty: 3, price: 20 }
-];
-
-let discountEnabled = false;
-const DISCOUNT_RATE = 0.1;
-let method = "Cash";
-let paid = 300;
-let orderExtraInfo = "Order #12345";
 
 let printerDevice;
 let printerCharacteristic;
 
+// ESC/POS encoder
 function encodeText(text){
     return new TextEncoder().encode(text);
 }
 
 async function connectPrinter(){
+
     try{
+
         printerDevice = await navigator.bluetooth.requestDevice({
             acceptAllDevices:true,
             optionalServices:['000018f0-0000-1000-8000-00805f9b34fb']
         });
+
         const server = await printerDevice.gatt.connect();
+
         const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        printerCharacteristic =
+            await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
         alert("Printer Connected");
+
     }catch(error){
         console.log(error);
-        alert("Connection Failed: " + error);
+        alert("Connection Failed");
     }
+
 }
 
 async function printReceipt(){
+
     if(!printerCharacteristic){
         alert("Connect printer first");
         return;
     }
 
-    let subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
-    let discount = discountEnabled ? subtotal * DISCOUNT_RATE : 0;
-    let vat = (subtotal - discount) * 0.12;
-    let finalTotal = subtotal - discount + vat;
-    let change = paid - finalTotal;
+    let receipt = "";
 
-    let receipt = "------ RECEIPT ------\n";
-    cart.forEach(i=>{ receipt+=`${i.name} x${i.qty} ₱${(i.price*i.qty).toFixed(2)}\n`; });
-    receipt+=`Subtotal: ₱${subtotal.toFixed(2)}\n`;
-    if(discountEnabled) receipt+=`Discount: ₱${discount.toFixed(2)}\n`;
-    receipt+=`VAT: ₱${vat.toFixed(2)}\n`;
-    receipt+=`TOTAL: ₱${finalTotal.toFixed(2)}\n`;
-    receipt+=`Payment Method: ${method}\n`;
-    receipt+=`Paid: ₱${paid.toFixed(2)}\n`;
-    receipt+=`Change: ₱${change.toFixed(2)}\n`;
-    receipt+=`Order Info: ${orderExtraInfo}\n`;
-    receipt+="--------------------\n";
+    receipt += "\x1B\x40";           // initialize
+    receipt += "\x1B\x61\x01";       // center
+    receipt += "MY STORE\n";
+    receipt += "--------------------------\n";
+    receipt += "\x1B\x61\x00";       // left
 
-    alert(receipt); // simulate print
+    receipt += "Burger        5.00\n";
+    receipt += "Fries         3.00\n";
 
-    const data = encodeText(receipt + "\x1D\x56\x41\x10");
+    receipt += "--------------------------\n";
+    receipt += "\x1B\x61\x02";       // right
+    receipt += "TOTAL: 8.00\n\n";
+
+    receipt += "\x1B\x61\x01";
+    receipt += "Thank You!\n\n\n";
+
+    receipt += "\x1D\x56\x41\x10";   // cut paper
+
+    const data = encodeText(receipt);
+
     try{
         await printerCharacteristic.writeValue(data);
         alert("Printed!");
     }catch(e){
         console.log(e);
-        alert("Print Failed: " + e);
+        alert("Print Failed");
     }
+
 }
-    const device = await navigator.bluetooth.requestDevice({
+const device = await navigator.bluetooth.requestDevice({
   filters: [
     { name: 'POS58C3' }  // Match your printer's Bluetooth name
   ],
@@ -106,11 +109,36 @@ const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b
 const printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
 console.log('Printer connected!');
+
+
+localStorage.setItem('printerId', device.id);
+
+const devices = await navigator.bluetooth.getDevices();
+const printer = devices.find(d => d.id === localStorage.getItem('printerId'));
+
+if (printer) {
+    const server = await printer.gatt.connect();
+    const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+    const printerCharacteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+    console.log('Auto-reconnected to printer!');
+}
+
+printer.addEventListener('gattserverdisconnected', async () => {
+    console.log('Printer disconnected, trying to reconnect...');
+    try {
+        await printer.gatt.connect();
+    } catch (err) {
+        console.log('Reconnection failed:', err);
+    }
+});
+
+window.addEventListener('load', async () => {
+    try {
+        await reconnectPrinter();
+    } catch(err) {
+        console.log('Printer not found or not paired:', err);
+    }
+});
 </script>
 </body>
 </html>
-
-
-
-
-
