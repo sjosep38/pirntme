@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,16 +6,12 @@
 
 <style>
 
-/* GENERAL */
-
 body{
 font-family:Arial;
 background:#f3f3f3;
 margin:0;
 text-align:center;
 }
-
-/* NAVBAR */
 
 .navbar{
 background:#2196F3;
@@ -28,15 +23,8 @@ gap:30px;
 font-size:18px;
 }
 
-.navbar span{
-cursor:pointer;
-}
-
-.navbar span:hover{
-text-decoration:underline;
-}
-
-/* MAIN CONTAINER */
+.navbar span{ cursor:pointer; }
+.navbar span:hover{ text-decoration:underline; }
 
 .container{
 background:white;
@@ -47,15 +35,11 @@ border-radius:10px;
 box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
-/* INPUTS */
-
 input{
 padding:10px;
 margin:5px;
 width:80%;
 }
-
-/* BUTTON */
 
 button{
 padding:10px 20px;
@@ -65,16 +49,12 @@ border:none;
 cursor:pointer;
 }
 
-button:hover{
-background:#1976D2;
-}
+button:hover{ background:#1976D2; }
 
 .generateBtn{
 font-size:18px;
 margin-top:20px;
 }
-
-/* MODALS */
 
 .modal{
 display:none;
@@ -106,296 +86,279 @@ cursor:pointer;
 
 <body>
 
-<!-- NAVBAR -->
-
 <div class="navbar">
-
+<span onclick="openPage('ManualModal')">Add</span>
 <span onclick="openPage('dashboardModal')">Dashboard</span>
 <span onclick="openPage('ratesModal')">Rates</span>
 <span onclick="openPage('aboutModal')">About</span>
 <span onclick="openPage('helpModal')">Help</span>
-<span onclick="openPage('ManualModal')">Add</span>
-
 </div>
 
 <h2>WiFi Voucher System</h2>
-<div id="ManualModal" class="modal">
 
-<div class="modal-content">
-
-<span class="close" onclick="closeModal('ManualModal')">×</span>
-
-
-<h3>Manual Add Voucher</h3>
-
-<input id="code" placeholder="Voucher Code">
-<input id="time" placeholder="Duration (ex. 1hour)">
-<input id="price" placeholder="Price (ex. 5)">
-
-<br>
-
-<button onclick="addVoucher()">Add Voucher</button>
-
-<hr>
-
-<h3>Upload Voucher TXT</h3>
-
-<input type="file" id="fileInput" accept=".txt">
-
-<p>Format: code=duration=price</p>
-
-<hr>
-
-</div>
-</div>
 <div class="container">
 <button class="generateBtn" onclick="openPriceModal()">
 Generate Voucher
 </button>
 
 <p id="remaining"></p>
+</div>
 
+<!-- MANUAL ADD -->
+
+<div id="ManualModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal('ManualModal')">×</span>
+
+<h3>Manual Add Voucher</h3>
+
+<input id="code" placeholder="Voucher Code">
+<input id="time" placeholder="Duration">
+<input id="price" placeholder="Price">
+
+<br>
+<button onclick="addVoucher()">Add Voucher</button>
+
+<hr>
+
+<h3>Upload TXT</h3>
+<input type="file" id="fileInput" accept=".txt">
+<p>Format: code=duration=price</p>
+
+</div>
 </div>
 
 <!-- PRICE MODAL -->
 
 <div id="priceModal" class="modal">
-
 <div class="modal-content">
-
 <span class="close" onclick="closeModal('priceModal')">×</span>
 
 <h3>Enter Price</h3>
-
 <input id="priceInput">
-
 <br><br>
-
 <button onclick="generateVoucher()">Generate</button>
 
 </div>
-
 </div>
 
 <!-- VOUCHER MODAL -->
 
 <div id="voucherModal" class="modal">
-
 <div class="modal-content">
-
 <span class="close" onclick="closeModal('voucherModal')">×</span>
 
 <h2>Generated Voucher</h2>
-
 <h1 id="result"></h1>
-
 <p id="duration"></p>
 <p id="priceDisplay"></p>
 
 <button onclick="printReceipt()">Print Receipt</button>
 
 </div>
-
 </div>
 
-<!-- MESSAGE MODAL -->
+<!-- MESSAGE -->
 
 <div id="messageModal" class="modal">
-
 <div class="modal-content">
-
 <h3 id="messageText"></h3>
-
 <br>
-
 <button onclick="closeModal('messageModal')">OK</button>
-
+</div>
 </div>
 
-</div>
-
-<!-- DASHBOARD MODAL -->
+<!-- DASHBOARD -->
 
 <div id="dashboardModal" class="modal">
-
 <div class="modal-content">
-
 <span class="close" onclick="closeModal('dashboardModal')">×</span>
-
 <h2>Dashboard</h2>
-
-<p>Total vouchers remaining:</p>
-
 <h1 id="dashboardCount"></h1>
-
+</div>
 </div>
 
-</div>
-
-<!-- RATES MODAL -->
+<!-- OTHER MODALS -->
 
 <div id="ratesModal" class="modal">
-
 <div class="modal-content">
-
 <span class="close" onclick="closeModal('ratesModal')">×</span>
-
-<h2>WiFi Rates</h2>
-
+<h2>Rates</h2>
 <p>5 pesos = 1 Hour</p>
 <p>10 pesos = 5 Hours</p>
 <p>20 pesos = 1 Day</p>
-
 </div>
-
 </div>
-
-<!-- ABOUT MODAL -->
 
 <div id="aboutModal" class="modal">
-
 <div class="modal-content">
-
 <span class="close" onclick="closeModal('aboutModal')">×</span>
-
 <h2>About</h2>
-
 <p>WiFi Voucher System</p>
-<p>Designed for Piso WiFi / Voucher Vending Machines.</p>
-
 </div>
-
 </div>
-
-<!-- HELP MODAL -->
 
 <div id="helpModal" class="modal">
-
 <div class="modal-content">
-
 <span class="close" onclick="closeModal('helpModal')">×</span>
-
 <h2>Help</h2>
-
-<p>1. Upload voucher file (.txt)</p>
-<p>2. Click Generate Voucher</p>
-<p>3. Enter the price</p>
-<p>4. Voucher will be dispensed</p>
-
+<p>1. Add vouchers</p>
+<p>2. Click Generate</p>
+<p>3. Enter price</p>
 </div>
-
 </div>
 
 <script>
 
-let vouchers = JSON.parse(localStorage.getItem("vouchers")) || []
+/* =========================
+   INDEXEDDB SETUP
+========================= */
 
-updateCount()
+let db;
+
+const request = indexedDB.open("WifiVoucherDB", 1);
+
+request.onupgradeneeded = function(event){
+    db = event.target.result;
+    if(!db.objectStoreNames.contains("vouchers")){
+        db.createObjectStore("vouchers", { keyPath: "code" });
+    }
+};
+
+request.onsuccess = function(event){
+    db = event.target.result;
+    loadVouchers();
+};
+
+request.onerror = function(){
+    alert("Database error");
+};
+
+/* ========================= */
 
 function showMessage(msg){
-
-document.getElementById("messageText").innerText = msg
-document.getElementById("messageModal").style.display = "block"
-
-}
-
-function saveData(){
-
-localStorage.setItem("vouchers", JSON.stringify(vouchers))
-updateCount()
-
-}
-
-function updateCount(){
-
-document.getElementById("remaining").innerText =
-"Remaining vouchers: " + vouchers.length
-
-document.getElementById("dashboardCount").innerText =
-vouchers.length
-
-}
-
-function addVoucher(){
-
-let code=document.getElementById("code").value
-let time=document.getElementById("time").value
-let price=document.getElementById("price").value
-
-if(code && time && price){
-
-vouchers.push({code,time,price})
-
-saveData()
-
-showMessage("Voucher Added")
-
-document.getElementById("code").value=""
-document.getElementById("time").value=""
-document.getElementById("price").value=""
-
-}else{
-
-showMessage("Complete all fields")
-
-}
-
-}
-
-function openPriceModal(){
-
-document.getElementById("priceInput").value=""
-document.getElementById("priceModal").style.display="block"
-
-}
-
-function generateVoucher(){
-
-let price=document.getElementById("priceInput").value
-
-let index=vouchers.findIndex(v=>v.price==price)
-
-if(index==-1){
-
-closeModal("priceModal")
-showMessage("No voucher available for this price")
-return
-
-}
-
-let voucher=vouchers.splice(index,1)[0]
-
-saveData()
-
-document.getElementById("result").innerText=voucher.code
-document.getElementById("duration").innerText="Duration: "+voucher.time
-document.getElementById("priceDisplay").innerText="Price: "+voucher.price
-
-closeModal("priceModal")
-
-document.getElementById("voucherModal").style.display="block"
-
+document.getElementById("messageText").innerText = msg;
+document.getElementById("messageModal").style.display="block";
 }
 
 function openPage(id){
-
-document.getElementById(id).style.display="block"
-
+document.getElementById(id).style.display="block";
 }
 
 function closeModal(id){
+document.getElementById(id).style.display="none";
+}
 
-document.getElementById(id).style.display="none"
+function openPriceModal(){
+document.getElementById("priceInput").value="";
+document.getElementById("priceModal").style.display="block";
+}
+
+/* =========================
+   LOAD VOUCHERS
+========================= */
+
+function loadVouchers(){
+let transaction = db.transaction(["vouchers"], "readonly");
+let store = transaction.objectStore("vouchers");
+let request = store.getAll();
+
+request.onsuccess = function(){
+updateCount(request.result.length);
+};
+}
+
+function updateCount(count){
+document.getElementById("remaining").innerText =
+"Remaining vouchers: " + count;
+
+document.getElementById("dashboardCount").innerText =
+count;
+}
+
+/* =========================
+   ADD VOUCHER
+========================= */
+
+function addVoucher(){
+
+let code=document.getElementById("code").value;
+let time=document.getElementById("time").value;
+let price=document.getElementById("price").value;
+
+if(!code || !time || !price){
+showMessage("Complete all fields");
+return;
+}
+
+let transaction = db.transaction(["vouchers"], "readwrite");
+let store = transaction.objectStore("vouchers");
+
+let request = store.add({code,time,price});
+
+request.onsuccess = function(){
+showMessage("Voucher Added");
+loadVouchers();
+};
+
+request.onerror = function(){
+showMessage("Voucher Code Already Exists");
+};
 
 }
 
+/* =========================
+   GENERATE VOUCHER
+========================= */
+
+function generateVoucher(){
+
+let price=document.getElementById("priceInput").value;
+
+let transaction = db.transaction(["vouchers"], "readwrite");
+let store = transaction.objectStore("vouchers");
+
+let request = store.getAll();
+
+request.onsuccess = function(){
+
+let all = request.result;
+let index = all.findIndex(v => v.price == price);
+
+if(index === -1){
+closeModal("priceModal");
+showMessage("No voucher available");
+return;
+}
+
+let voucher = all[index];
+
+store.delete(voucher.code);
+
+document.getElementById("result").innerText=voucher.code;
+document.getElementById("duration").innerText="Duration: "+voucher.time;
+document.getElementById("priceDisplay").innerText="Price: "+voucher.price;
+
+closeModal("priceModal");
+document.getElementById("voucherModal").style.display="block";
+
+loadVouchers();
+
+};
+
+}
+
+/* =========================
+   PRINT
+========================= */
+
 function printReceipt(){
 
-let code=document.getElementById("result").innerText
-let time=document.getElementById("duration").innerText
-let price=document.getElementById("priceDisplay").innerText
+let code=document.getElementById("result").innerText;
+let time=document.getElementById("duration").innerText;
+let price=document.getElementById("priceDisplay").innerText;
 
-let win=window.open("","","width=300,height=600")
+let win=window.open("","","width=300,height=600");
 
 win.document.write(`
 <body style="font-family:monospace;text-align:center;">
@@ -405,54 +368,56 @@ win.document.write(`
 <p>${price}</p>
 <p>Enjoy your internet!</p>
 </body>
-`)
+`);
 
-win.document.close()
-win.print()
+win.document.close();
+win.print();
 
 }
 
-/* TXT IMPORT */
+/* =========================
+   TXT IMPORT
+========================= */
 
 document.getElementById("fileInput").addEventListener("change",function(e){
 
-let file=e.target.files[0]
+let file=e.target.files[0];
+if(!file) return;
 
-if(!file) return
-
-let reader=new FileReader()
+let reader=new FileReader();
 
 reader.onload=function(event){
 
-let lines=event.target.result.split("\n")
+let lines=event.target.result.split("\n");
+
+let transaction = db.transaction(["vouchers"], "readwrite");
+let store = transaction.objectStore("vouchers");
 
 lines.forEach(line=>{
 
-let parts=line.trim().split("=")
+let parts=line.trim().split("=");
 
 if(parts.length===3){
-
-vouchers.push({
+store.add({
 code:parts[0],
 time:parts[1],
 price:parts[2]
-})
-
+});
 }
 
-})
+});
 
-saveData()
+transaction.oncomplete = function(){
+showMessage("Vouchers Imported");
+loadVouchers();
+};
 
-showMessage("Vouchers Imported")
+};
 
-}
+reader.readAsText(file);
 
-reader.readAsText(file)
-
-})
+});
 
 </script>
 </body>
 </html>
-
