@@ -177,14 +177,14 @@ button.active{background:orange;color:black;}
 const TAX_RATE = 0.00;
 const products = [
 
- { id: 1, name: "", price: 5.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1h.png?raw=true" },
- { id: 2, name: "", price: 8.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/3h.png?raw=true" },
- { id: 3, name: "", price: 10.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/5h.png?raw=true" },
- { id: 4, name: "", price: 12.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/8h.png?raw=true" },
- { id: 5, name: "", price: 15.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/12h.png?raw=true" },
- { id: 6, name: "", price: 25.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1d.png?raw=true" },
- { id: 7, name: "", price: 100.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1w.png?raw=true" },
- { id: 8, name: "", price: 299.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1m.png?raw=true" }
+ { id: 1, name: "1 HOUR", price: 5.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1h.png?raw=true" },
+ { id: 2, name: "3 HOURS", price: 8.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/3h.png?raw=true" },
+ { id: 3, name: "5 HOURS ", price: 10.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/5h.png?raw=true" },
+ { id: 4, name: "8 HOURS ", price: 12.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/8h.png?raw=true" },
+ { id: 5, name: "12 HOURS", price: 15.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/12h.png?raw=true" },
+ { id: 6, name: "1 DAY", price: 25.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1d.png?raw=true" },
+ { id: 7, name: "1 WEEK", price: 100.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1w.png?raw=true" },
+ { id: 8, name: "1 MONTH", price: 299.00, category: "VoucherCode", image:"https://github.com/sjosep38/pirntme/blob/master/img/1m.png?raw=true" },
 ];
 
 let cart = [];
@@ -200,7 +200,6 @@ function renderProducts(list){
   container.innerHTML=list.map(p=>{ const item=cart.find(i=>i.id===p.id); const qty=item?item.qty:0;
     return `<div class="card">
       <img src="${p.image}" alt="${p.name}">
-      <h5>${p.name}</h5>
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <p>₱${p.price.toFixed(2)}</p>
         ${qty===0?`<i class="fas fa-shopping-cart" onclick="addToCart(${p.id})"></i>`:
