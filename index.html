@@ -409,11 +409,25 @@ function printReceipt(method, items, received, change) {
         </html>
     `);
     p.document.close();
+
+// Open intent for Bluetooth printing
+  window.location.href =
+    "intent://sendtext#Intent;" +
+    "action=android.intent.action.SEND;" +
+    "package=mate.bluetoothprint;" +
+    "S.android.intent.extra.TEXT=" + encodedText + ";" +
+    "type=text/plain;" +
+    "end;" +
+    "browser_fallback_url=https://www.webtonative.com/";
+	
 	// Secondary Actions
     if (typeof sendToTelegram === "function") sendToTelegram(receipt);
     cart = []; // Ensure 'cart' is defined globally
     if (typeof renderCart === "function") renderCart();
     if (typeof closeModal === "function") closeModal('PaymentModal');
+
+
+	
 }
 function sendToTelegram(text) {
     fetch(`https://api.telegram.org/bot8329561822:AAFPc5wqF3n4YX_-KQM3_iVpdn_XOciyl_0/sendMessage`, {
