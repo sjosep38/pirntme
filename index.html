@@ -80,7 +80,43 @@
         <div class="products-section">
             <div class="products" id="productList"></div>
             
-<div style="margin-top: 20px; padding: 15px; border: 2px dashed #58a6ff; border-radius: 8px; background: #1a202c;">
+
+        </div>
+    </div>
+</div>
+
+<nav class="navbar">
+    <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 CART</a>
+    <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY </a>
+    <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>
+	<a href="#" class="nav-item" onclick="openModal('adminModal')">📊 ADMIN</a>
+</nav>
+
+<div id="logsModal" class="modal">
+    <div class="modal-content">
+        <div class="cart">
+            <h2>Your Cart</h2>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="summary">
+                <div><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
+                <div><span>Discount</span><span id="Discount">₱0.00</span></div>
+                <div><span>VAT 12%</span><span id="VAT">₱0.00</span></div>
+                <div style="font-size: 1.5rem; margin-top: 10px;"><strong style="color: orange;">Total</strong><strong id="total" style="color: orange;">₱0.00</strong></div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action btn-gray" onclick="closeModal('logsModal')">Back</button>
+                <button class="btn-action btn-orange" onclick="PaymentModal()">Proceed</button>
+                <button class="btn-action btn-green" onclick="applyDiscount()">Discount</button>
+			
+            </div>
+			
+        </div>
+    </div>
+</div>
+
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <div style="margin-top: 20px; padding: 15px; border: 2px dashed #58a6ff; border-radius: 8px; background: #1a202c;">
     <p style="font-weight: bold; color: #58a6ff; margin-bottom: 10px;">Voucher Management</p>
     
     <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">1. Select Product Type:</label>
@@ -103,33 +139,6 @@
     <button class="btn-action btn-green" style="width: 100%; margin-top: 10px;" onclick="processBulkUpload()">Process & Save Codes</button>
     <button class="btn-action btn-gray" style="width: 100%; margin-top: 5px; font-size: 0.7rem;" onclick="checkInventory()">Check Current Stock</button>
 </div>
-        </div>
-    </div>
-</div>
-
-<nav class="navbar">
-    <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 VIEW CART</a>
-    <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY NOW</a>
-    <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>
-</nav>
-
-<div id="logsModal" class="modal">
-    <div class="modal-content">
-        <div class="cart">
-            <h2>Your Cart</h2>
-            <div class="cart-items" id="cartItems"></div>
-            <div class="summary">
-                <div><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
-                <div><span>Discount</span><span id="Discount">₱0.00</span></div>
-                <div><span>VAT 12%</span><span id="VAT">₱0.00</span></div>
-                <div style="font-size: 1.5rem; margin-top: 10px;"><strong style="color: orange;">Total</strong><strong id="total" style="color: orange;">₱0.00</strong></div>
-            </div>
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn-action btn-gray" onclick="closeModal('logsModal')">Back</button>
-                <button class="btn-action btn-orange" onclick="PaymentModal()">Proceed</button>
-                <button class="btn-action btn-green" onclick="applyDiscount()">Discount</button>
-            </div>
-        </div>
     </div>
 </div>
 
