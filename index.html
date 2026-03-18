@@ -14,7 +14,7 @@
         .container { flex:1; display:flex; }
 
         /* PRODUCTS */
-        .products-section { flex:3; padding:5px; overflow-y:auto; margin-bottom: 60px;}
+        .products-section { flex:3; padding:10px; overflow-y:auto; margin-bottom: 60px;}
         .products { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
         .card { background: linear-gradient(90deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%); border:2px solid #00C3FF; border-radius:8px; padding:8px; transition:0.3s; text-align: center; }
         .card img { width:100%; height: 120px; object-fit:cover; border-radius:5px; margin-bottom: 5px; }
@@ -109,9 +109,9 @@
 </div>
 
 <nav class="navbar">
-    <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 CART</a>
-    <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY</a>
-    <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>	
+    <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 VIEW CART</a>
+    <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY NOW</a>
+    <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>
 </nav>
 
 <div id="logsModal" class="modal">
@@ -405,21 +405,18 @@ function printReceipt(method, items, received, change) {
         </body>
         </html>
     `);
-	  // Use escape instead of encodeURIComponent
-  let encodedText = escape(receiptText);
+	
+	// Encode receipt safely
+let encodedText = encodeURIComponent(receipt);
 
-  // Open intent for Bluetooth printing
-  window.location.href =
+// Open Bluetooth printing intent
+window.location.href =
     "intent://sendtext#Intent;" +
     "action=android.intent.action.SEND;" +
     "package=mate.bluetoothprint;" +
     "S.android.intent.extra.TEXT=" + encodedText + ";" +
     "type=text/plain;" +
-    "end;" +
-    "browser_fallback_url=https://www.webtonative.com/";
-
-
-	
+    "end;";
     p.document.close();
 	// Secondary Actions
     if (typeof sendToTelegram === "function") sendToTelegram(receipt);
@@ -531,9 +528,10 @@ async function renderProducts() {
                 <span>₱${p.price.toFixed(2)}</span>
                 ${count > 0 ? (inCart ? `
                     <div style="display:flex; gap:5px; align-items:center;">
-                        <button onclick="changeQty(${p.id},-1)" style="padding:2px 8px;">-</button>
+
+                        <button onclick="changeQty(${p.id},-1)"  style="width:24px;height:24px;border:none;border-radius:5px;background:orange;font-weight:bold;">-</button>
                         <span>${inCart.qty}</span>
-                        <button onclick="changeQty(${p.id},1)" style="padding:2px 8px;">+</button>
+                        <button onclick="changeQty(${p.id},1)"  style="width:24px;height:24px;border:none;border-radius:5px;background:orange;font-weight:bold;">-</button>
                     </div>
                 ` : `<i class="fas fa-plus-circle" onclick="addToCart(${p.id})"></i>`) 
                 : '<span style="color:red; font-size:0.7rem;">SOLD OUT</span>'}
