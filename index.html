@@ -23,7 +23,596 @@
 
         /* CART & MODALS */
         .modal { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:#111; padding: 10px; }
+        .modal-content { background:#111; width:100%; max-width: 500px; ma<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>MASTER KURT FOODHUB</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+        body { background:#111; color:white; height:100vh; overflow:hidden; }
+
+        /* HEADER & LAYOUT */
+        .main-wrapper { display:flex; margin-top:1px; height:calc(100vh - 70px); margin-bottom: 60px; }
+        .container { flex:1; display:flex; }
+
+        /* PRODUCTS */
+        .products-section { flex:3; padding:5px; overflow-y:auto; margin-bottom: 60px;}
+        .products { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+        .card { background: linear-gradient(90deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%); border:2px solid #00C3FF; border-radius:8px; padding:8px; transition:0.3s; text-align: center; }
+        .card img { width:100%; height: 120px; object-fit:cover; border-radius:5px; margin-bottom: 5px; }
+        .card p { font-weight:bold; font-size: 1.1rem; margin-bottom: 5px; }
+        .card i { font-size:24px; cursor:pointer; color: #00C3FF; }
+
+        /* CART & MODALS */
+        .modal { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:#111; padding: 10px; }
         .modal-content { background:#111; width:100%; max-width: 500px; margin: auto; height:100%; overflow-y:auto; }
+        
+        .cart { background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%); padding:15px; border-radius:15px; display:flex; flex-direction:column; height: 90vh; }
+        .cart-items { flex:1; overflow-y:auto; margin-bottom: 10px; }
+        .cart-item { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#2a2a2a; padding:12px; border-radius:10px; }
+        
+        /* SUMMARY */
+        .summary { border-top:1px solid #444; padding-top:10px; }
+        .summary div { display:flex; justify-content:space-between; margin:5px 0; }
+        
+        /* BUTTONS */
+        .btn-action { padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; color: white; flex: 1; }
+        .btn-orange { background: orange; color: black; }
+        .btn-gray { background: #444; }
+        .btn-green { background: green; }
+
+        /* PAYMENT UI */
+        .payment-methods { display:flex; gap:10px; margin: 15px 0; }
+        .payment-methods button { flex:1; padding:15px; border:none; border-radius:8px; cursor:pointer; background:#2a2a2a; color:white; font-weight:bold; }
+        .payment-methods button.active { background: orange; color: black; }
+        
+        #cashInput, #MobileInput { width: 100%; padding: 15px; font-size: 24px; text-align: center; border-radius: 8px; border: none; margin: 10px 0; }
+
+        /* NAVBAR */
+        .navbar { position:fixed; bottom:0; left:0; right:0; height:62px; background:#161b22; border-top:1px solid #2a2f38; display:flex; justify-content:space-around; align-items:center; z-index:999; }
+        .nav-item { text-align:center; color:#8b95a1; font-size:0.8rem; text-decoration:none; cursor:pointer; }
+        
+        .stock-tag { font-size: 0.7rem; color: #00ff00; display: block; margin-top: 2px; }
+		
+		    /* Added Stock Badge Style */
+    .stock-badge {
+        font-size: 0.75rem;
+        background: #00ff0033;
+        color: #00ff00;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: block;
+        margin-top: 5px;
+    }
+    .out-of-stock { color: #ff4444; background: #ff444433; }
+    
+    /* Active Payment Pulse */
+    .payment-methods button.active {
+        background: orange;
+        color: black;
+        box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
+        transform: scale(1.05);
+    }
+    </style>
+</head>
+
+<body>
+
+<div class="main-wrapper">
+    <div class="container">
+        <div class="products-section">
+            <div class="products" id="productList"></div>
+            
+<div style="margin-top: 20px; padding: 15px; border: 2px dashed #58a6ff; border-radius: 8px; background: #1a202c;">
+    <p style="font-weight: bold; color: #58a6ff; margin-bottom: 10px;">Voucher Management</p>
+    
+    <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">1. Select Product Type:</label>
+    <select id="bulkTarget" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #333; color: white; border-radius: 5px;">
+        <option value="1 HOUR">1 HOUR</option>
+        <option value="3 HOURS">3 HOURS</option>
+        <option value="5 HOURS">5 HOURS</option>
+        <option value="8 HOURS">8 HOURS</option>
+        <option value="12 HOURS">12 HOURS</option>
+        <option value="1 DAY">1 DAY</option>
+        <option value="1 WEEK">1 WEEK</option>
+        <option value="1 MONTH">1 MONTH</option>
+    </select>
+
+    <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">2. Upload .txt file or Paste Codes:</label>
+    <input type="file" id="fileInput" accept=".txt" style="font-size: 0.7rem; margin-bottom: 10px;">
+    
+    <textarea id="manualCodes" placeholder="Paste codes here (one per line)..." style="width: 100%; height: 60px; background: #222; color: #00ff00; border-radius: 5px; padding: 5px; font-family: monospace; font-size: 0.8rem;"></textarea>
+    
+    <button class="btn-action btn-green" style="width: 100%; margin-top: 10px;" onclick="processBulkUpload()">Process & Save Codes</button>
+    <button class="btn-action btn-gray" style="width: 100%; margin-top: 5px; font-size: 0.7rem;" onclick="checkInventory()">Check Current Stock</button>
+</div>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar">
+    <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 CART</a>
+    <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY</a>
+    <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>
+	<a href="#" class="nav-item" onclick="location.reload();">📊 SETTINGS</a>
+	
+</nav>
+
+<div id="logsModal" class="modal">
+    <div class="modal-content">
+        <div class="cart">
+            <h2>Your Cart</h2>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="summary">
+                <div><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
+                <div><span>Discount</span><span id="Discount">₱0.00</span></div>
+                <div><span>VAT 12%</span><span id="VAT">₱0.00</span></div>
+                <div style="font-size: 1.5rem; margin-top: 10px;"><strong style="color: orange;">Total</strong><strong id="total" style="color: orange;">₱0.00</strong></div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action btn-gray" onclick="closeModal('logsModal')">Back</button>
+                <button class="btn-action btn-orange" onclick="PaymentModal()">Proceed</button>
+                <button class="btn-action btn-green" onclick="applyDiscount()">Discount</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="PaymentModal" class="modal">
+    <div class="modal-content">
+        <div style="background: #1a1a1a; padding:20px; border-radius:15px; border: 2px solid #00C3FF;">
+            <h2 style="text-align: center;">Payment</h2>
+            <div class="payment-methods">
+                <button id="methodCash" onclick="selectPayment('Cash')">💵 Cash</button>
+                <button id="methodCard" onclick="selectPayment('Card')">💳 GCash</button>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+                <p>Amount to Pay</p>
+                <h1 id="payAmountLabel" style="color: orange; font-size: 40px;">₱0.00</h1>
+            </div>
+
+            <div id="cashArea" style="display:none;">
+                <input type="number" id="cashInput" placeholder="Amount Received">
+                <p style="font-size: 1.2rem; text-align: center;">Change: <span id="changeText" style="color: #00ff00;">₱0.00</span></p>
+                <button class="btn-action btn-orange" style="width: 100%; margin-top: 10px;" onclick="confirmTransaction('Cash')">Confirm Cash Sale</button>
+            </div>
+
+            <div id="cardArea" style="display:none;">
+                <input type="text" id="MobileInput" placeholder="GCash Number (Optional)">
+                <button class="btn-action btn-orange" style="width: 100%; margin-top: 10px;" onclick="confirmTransaction('GCash')">Confirm GCash Sale</button>
+            </div>
+
+            <button class="btn-action btn-gray" style="width: 100%; margin-top: 15px;" onclick="closeModal('PaymentModal'); openModal('logsModal');">Back to Cart</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ================= DATA & DATABASE =================
+const products = [
+    { id: 1, name: "1 HOUR", price: 5.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/1h.png?raw=true" },
+    { id: 2, name: "3 HOURS", price: 8.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/3h.png?raw=true" },
+    { id: 3, name: "5 HOURS", price: 10.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/5h.png?raw=true" },
+    { id: 4, name: "8 HOURS", price: 12.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/8h.png?raw=true" },
+    { id: 5, name: "12 HOURS", price: 15.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/12h.png?raw=true" },
+    { id: 6, name: "1 DAY", price: 25.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/1d.png?raw=true" },
+    { id: 7, name: "1 WEEK", price: 100.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/1w.png?raw=true" },
+    { id: 8, name: "1 MONTH", price: 299.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/1m.png?raw=true" }
+];
+
+let cart = [];
+let db;
+let finalTotal = 0;
+let discountEnabled = false;
+let DISCOUNT_RATE = 0;
+
+// Initialize DB
+const request = indexedDB.open("VoucherStore", 1);
+request.onupgradeneeded = (e) => {
+    db = e.target.result;
+    let store = db.createObjectStore("vouchers", { keyPath: "id", autoIncrement: true });
+    store.createIndex("name", "name", { unique: false });
+};
+request.onsuccess = (e) => { db = e.target.result; renderProducts(); };
+
+// ================= VOUCHER STORAGE LOGIC =================
+
+function addVoucherToDB(name, code) {
+    let tx = db.transaction("vouchers", "readwrite");
+    tx.objectStore("vouchers").add({ name, code });
+}
+
+async function bulkUpload() {
+    let name = prompt("Enter product name EXACTLY (e.g. 1 HOUR)");
+    if(!name) return;
+    let codes = prompt("Paste codes (separated by spaces or lines)");
+    if(!codes) return;
+    let list = codes.split(/[\s\n,]+/).filter(c => c.trim() !== "");
+    list.forEach(c => addVoucherToDB(name, c.trim()));
+    alert(`Added ${list.length} codes for ${name}`);
+    location.reload();
+}
+
+async function pullVoucher(name) {
+    return new Promise((resolve) => {
+        let tx = db.transaction("vouchers", "readwrite");
+        let store = tx.objectStore("vouchers");
+        let request = store.index("name").get(name);
+        request.onsuccess = () => {
+            if(request.result) {
+                let code = request.result.code;
+                store.delete(request.result.id);
+                resolve(code);
+            } else { resolve("OUT-OF-STOCK"); }
+        };
+    });
+}
+
+function checkInventory() {
+    let tx = db.transaction("vouchers", "readonly");
+    tx.objectStore("vouchers").getAll().onsuccess = (e) => {
+        let counts = {};
+        e.target.result.forEach(v => counts[v.name] = (counts[v.name] || 0) + 1);
+        alert("Stock levels:\n" + JSON.stringify(counts, null, 2));
+    };
+}
+
+// ================= POS CORE UI =================
+
+function renderProducts() {
+    const list = document.getElementById("productList");
+    list.innerHTML = products.map(p => {
+        const inCart = cart.find(i => i.id === p.id);
+        return `
+        <div class="card">
+            <img src="${p.image}">
+            <p>${p.name}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span>₱${p.price.toFixed(2)}</span>
+                ${inCart ? `
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <button onclick="changeQty(${p.id},-1)" style="padding:2px 8px;">-</button>
+                        <span>${inCart.qty}</span>
+                        <button onclick="changeQty(${p.id},1)" style="padding:2px 8px;">+</button>
+                    </div>
+                ` : `<i class="fas fa-plus-circle" onclick="addToCart(${p.id})"></i>`}
+            </div>
+        </div>`;
+    }).join("");
+}
+
+function addToCart(id) {
+    let p = products.find(x => x.id === id);
+    cart.push({...p, qty: 1});
+    renderCart();
+}
+
+function changeQty(id, delta) {
+    let item = cart.find(i => i.id === id);
+    if(item) {
+        item.qty += delta;
+        if(item.qty <= 0) cart = cart.filter(i => i.id !== id);
+    }
+    renderCart();
+}
+
+function renderCart() {
+    const container = document.getElementById("cartItems");
+    container.innerHTML = cart.map(i => `
+        <div class="cart-item">
+            <div><strong>${i.name}</strong><br>₱${i.price.toFixed(2)}</div>
+            <div>x${i.qty}</div>
+        </div>
+    `).join("");
+    updateSummary();
+    renderProducts();
+}
+
+function updateSummary() {
+    let subtotal = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+    let discount = discountEnabled ? subtotal * DISCOUNT_RATE : 0;
+    finalTotal = subtotal - discount;
+
+    document.getElementById("subtotal").innerText = `₱${subtotal.toFixed(2)}`;
+    document.getElementById("Discount").innerText = `₱${discount.toFixed(2)}`;
+    document.getElementById("VAT").innerText = `₱${(subtotal * 0.12).toFixed(2)}`;
+    document.getElementById("total").innerText = `₱${finalTotal.toFixed(2)}`;
+    document.getElementById("payAmountLabel").innerText = `₱${finalTotal.toFixed(2)}`;
+}
+
+// ================= PAYMENT & PRINTING =================
+
+function openModal(id) { document.getElementById(id).style.display = 'block'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function PaymentModal() {
+    if(cart.length === 0) return alert("Cart is empty");
+    closeModal('logsModal');
+    openModal('PaymentModal');
+}
+
+function selectPayment(method) {
+    document.getElementById("cashArea").style.display = (method === 'Cash' ? 'block' : 'none');
+    document.getElementById("cardArea").style.display = (method === 'Card' ? 'block' : 'none');
+    document.getElementById("methodCash").className = (method === 'Cash' ? 'active' : '');
+    document.getElementById("methodCard").className = (method === 'Card' ? 'active' : '');
+}
+
+document.getElementById('cashInput').addEventListener('input', (e) => {
+    let val = parseFloat(e.target.value) || 0;
+    document.getElementById("changeText").innerText = `₱${Math.max(0, val - finalTotal).toFixed(2)}`;
+});
+
+async function confirmTransaction(method) {
+    let cashIn = method === 'Cash' ? parseFloat(document.getElementById("cashInput").value) : finalTotal;
+    if(isNaN(cashIn) || cashIn < finalTotal) return alert("Insufficient Payment");
+
+    // FETCH CODES
+    let finalItems = [];
+    for(let item of cart) {
+        for(let q=0; q < item.qty; q++) {
+            let code = await pullVoucher(item.name);
+            finalItems.push({ name: item.name, code: code, price: item.price });
+        }
+    }
+
+    printReceipt(method, finalItems, cashIn, cashIn - finalTotal);
+}
+
+function printReceipt(method, items, received, change) {
+    const MAX_WIDTH = 32; // Standard for POS58
+    const line = "-".repeat(MAX_WIDTH) + "\n";
+    
+    // Calculate Total since it's used in the summary
+    const finalTotal = items.reduce((sum, i) => sum + i.price, 0);
+
+    let receipt = `\n`;
+    receipt += `      WIFI CONNECT \n`.padStart(MAX_WIDTH / 2); 
+    receipt += ` 2530 Isagani St. Manila\n`;
+    receipt += line;
+    receipt += `${new Date().toLocaleString()}\n`;
+    receipt += `Payment: ${method}\n`;
+    receipt += line;
+
+    // --- ITEMS SECTION ---
+    items.forEach(i => {
+        let label = `${i.name} [${i.code}]`;
+        let price = i.price.toFixed(2);
+        
+        // If label + price is too long, we wrap the label
+        if ((label.length + price.length) >= MAX_WIDTH) {
+            receipt += `${label}\n`; // Name on its own line
+            receipt += price.padStart(MAX_WIDTH) + "\n"; // Price aligned right
+        } else {
+            // Calculate exact padding to push price to the far right
+            let padding = MAX_WIDTH - label.length;
+            receipt += `${label}${price.padStart(padding)}\n`;
+        }
+    });
+
+    receipt += line;
+    
+    // --- SUMMARY SECTION ---
+    // This function ensures the colon stays with the label 
+    // and the price stays glued to the right margin.
+    const formatSummaryRow = (label, value) => {
+        let key = `${label}:`;
+        let valStr = value.toFixed(2);
+        let padding = MAX_WIDTH - key.length;
+        return `${key}${valStr.padStart(padding)}\n`;
+    };
+
+    receipt += formatSummaryRow("TOTAL", finalTotal);
+    receipt += formatSummaryRow("CASH", received);
+    receipt += formatSummaryRow("CHANGE", change);
+    
+    receipt += line;
+    receipt += `Thank you for your Purchase!\n`;
+    receipt += `\n\n\n`;
+
+    // --- PRINTING ---
+    let p = window.open('', '', 'width=400,height=600');
+    p.document.write(`
+        <html>
+        <head>
+            <style>
+                pre { 
+                    font-family: monospace; /* Essential for character alignment */
+                    font-size: 28px; 
+                    white-space: pre; 
+                }
+            </style>
+        </head>
+        <body onload="window.print(); window.close();">
+            <pre>${receipt}</pre>
+        </body>
+        </html>
+    `);
+	  // Use escape instead of encodeURIComponent
+  let encodedText = escape(receiptText);
+
+  // Open intent for Bluetooth printing
+  window.location.href =
+    "intent://sendtext#Intent;" +
+    "action=android.intent.action.SEND;" +
+    "package=mate.bluetoothprint;" +
+    "S.android.intent.extra.TEXT=" + encodedText + ";" +
+    "type=text/plain;" +
+    "end;" +
+    "browser_fallback_url=https://www.webtonative.com/";
+
+
+	
+    p.document.close();
+	// Secondary Actions
+    if (typeof sendToTelegram === "function") sendToTelegram(receipt);
+    cart = []; // Ensure 'cart' is defined globally
+    if (typeof renderCart === "function") renderCart();
+    if (typeof closeModal === "function") closeModal('PaymentModal');
+}
+function sendToTelegram(text) {
+    fetch(`https://api.telegram.org/bot8329561822:AAFPc5wqF3n4YX_-KQM3_iVpdn_XOciyl_0/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: "6975478760", text: text })
+    });
+}
+
+function applyDiscount() {
+    if(prompt("Admin Password?") === "1234") {
+        discountEnabled = true;
+        DISCOUNT_RATE = 0.20;
+        updateSummary();
+    }
+}
+
+async function processBulkUpload() {
+    const targetProduct = document.getElementById('bulkTarget').value;
+    const fileInput = document.getElementById('fileInput');
+    const manualArea = document.getElementById('manualCodes');
+    
+    let rawText = "";
+
+    // 1. Check if a file was uploaded
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        rawText = await file.text();
+    } else {
+        // 2. Otherwise use the manual textarea
+        rawText = manualArea.value;
+    }
+
+    if (!rawText.trim()) {
+        alert("Please upload a .txt file or paste codes into the box first.");
+        return;
+    }
+
+    // Split by lines or spaces and filter out empty strings
+    const codes = rawText.split(/[\s\n,]+/).filter(c => c.trim() !== "");
+
+    if (codes.length === 0) {
+        alert("No valid codes found.");
+        return;
+    }
+
+    // Save to IndexedDB
+    const tx = db.transaction("vouchers", "readwrite");
+    const store = tx.objectStore("vouchers");
+
+    codes.forEach(code => {
+        store.add({ name: targetProduct, code: code.trim() });
+    });
+
+    tx.oncomplete = () => {
+        alert(`Successfully uploaded ${codes.length} codes for ${targetProduct}!`);
+        // Clear inputs
+        fileInput.value = "";
+        manualArea.value = "";
+        renderProducts(); // Refresh UI
+    };
+
+    tx.onerror = () => {
+        alert("Error saving codes to database.");
+    };
+}
+
+// Keep your existing checkInventory function to verify the upload
+function checkInventory() {
+    let tx = db.transaction("vouchers", "readonly");
+    tx.objectStore("vouchers").getAll().onsuccess = (e) => {
+        let counts = {};
+        e.target.result.forEach(v => {
+            counts[v.name] = (counts[v.name] || 0) + 1;
+        });
+        
+        let msg = "CURRENT STOCK:\n------------------\n";
+        for (let prod in counts) {
+            msg += `${prod}: ${counts[prod]} left\n`;
+        }
+        if (Object.keys(counts).length === 0) msg = "Database is empty.";
+        alert(msg);
+    };
+}
+
+// Improved Render with Live Stock
+async function renderProducts() {
+    const list = document.getElementById("productList");
+    const stockMap = await getStockCounts();
+    
+    list.innerHTML = products.map(p => {
+        const inCart = cart.find(i => i.id === p.id);
+        const count = stockMap[p.name] || 0;
+        
+        return `
+        <div class="card" style="opacity: ${count === 0 ? '0.7' : '1'}">
+            <img src="${p.image}">
+            
+            <span class="stock-badge ${count === 0 ? 'out-of-stock' : ''}">
+                Stock: ${count}
+            </span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <span>₱${p.price.toFixed(2)}</span>
+                ${count > 0 ? (inCart ? `
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <button onclick="changeQty(${p.id},-1)" style="padding:2px 8px;">-</button>
+                        <span>${inCart.qty}</span>
+                        <button onclick="changeQty(${p.id},1)" style="padding:2px 8px;">+</button>
+                    </div>
+                ` : `<i class="fas fa-plus-circle" onclick="addToCart(${p.id})"></i>`) 
+                : '<span style="color:red; font-size:0.7rem;">SOLD OUT</span>'}
+            </div>
+        </div>`;
+    }).join("");
+}
+
+// Helper to get stock counts for UI
+function getStockCounts() {
+    return new Promise((resolve) => {
+        let tx = db.transaction("vouchers", "readonly");
+        tx.objectStore("vouchers").getAll().onsuccess = (e) => {
+            let counts = {};
+            e.target.result.forEach(v => counts[v.name] = (counts[v.name] || 0) + 1);
+            resolve(counts);
+        };
+    });
+}
+
+// Improved Transaction: Prevents printing if stock ran out during the session
+async function confirmTransaction(method) {
+    let cashIn = method === 'Cash' ? parseFloat(document.getElementById("cashInput").value) : finalTotal;
+    if(isNaN(cashIn) || cashIn < finalTotal) return alert("Insufficient Payment");
+
+    let finalItems = [];
+    let stockError = false;
+
+    for(let item of cart) {
+        for(let q=0; q < item.qty; q++) {
+            let code = await pullVoucher(item.name);
+            if(code === "OUT-OF-STOCK") {
+                stockError = true;
+                break;
+            }
+            finalItems.push({ name: item.name, code: code, price: item.price });
+        }
+        if(stockError) break;
+    }
+
+    if(stockError) {
+        alert("Transaction Failed: One or more items went out of stock!");
+        location.reload(); // Refresh to sync stock
+        return;
+    }
+
+    printReceipt(method, finalItems, cashIn, cashIn - finalTotal);
+}
+</script>
+
+</body>
+</html>rgin: auto; height:100%; overflow-y:auto; }
         
         .cart { background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%); padding:15px; border-radius:15px; display:flex; flex-direction:column; height: 90vh; }
         .cart-items { flex:1; overflow-y:auto; margin-bottom: 10px; }
