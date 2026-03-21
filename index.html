@@ -72,10 +72,108 @@
     }
 	
 	#statusMessage { white-space: pre-wrap; }
+	
+	
+	  .dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg,rgba(5, 53, 74, 1) 0%, rgba(39, 67, 89, 1) 100%);
+  padding: 1px 15px;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+  
+  .header h3 { margin:0; font-size:1.05rem; }
+  .card {
+    background: linear-gradient(135deg,#002244,#003355);
+    border-radius:8px;
+    padding:10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  #chartContainer { width:100%; max-width:960px; margin: 0 auto; }
+  canvas { width:100% !important; height:360px !important; }
+  .legendNote { font-size:12px; color:#bcd; margin-top:6px; text-align:center; }
+  .nav {
+    display:flex;
+    gap:8px;
+  }
+  .nav a { color:#fff; text-decoration:none; background:transparent; padding:6px 10px; border-radius:6px; }
+  
+  .nav-btn {
+  border:none;
+  background:transparent;
+  color:#fff;
+  font-size:1.4rem;
+  padding:4px 8px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.nav-btn:active {
+  background:rgba(255,255,255,0.5);
+}
+
+.nav-menu {
+  position:absolute;
+  top:74px;
+  right:10px;
+  background:linear-gradient(90deg,#68b7de,#274359);
+  backdrop-filter:blur(6px);
+  border-radius:5px;
+  padding:5px;
+  display:none;
+  flex-direction:column;
+}
+
+.nav-menu.show {
+  
+  display:flex;
+}
+
+.nav-menu a {
+  color:#fff;
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:6px;
+}
+
+.nav-menu a:hover {
+  background:rgba(255,255,255,0.2);
+}
+#l
     </style>
 </head>
 
 <body>
+<h3 class="dashboard-header">
+  <span>Dashboard</span>
+  <button class="nav-btn">☰</button>
+</h3>
+<nav class="navbar">
+  <a href="openModal('adminModal')" class="nav-item">
+    <span>🏠</span>
+    Home
+  </a>
+  <a href="/logs" class="nav-item">
+    <span>📄</span>
+    Logs
+  </a>
+  <a href="/settings" class="nav-item">
+    <span>⚙️</span>
+    Settings
+  </a>
+  <a href="/graph" class="nav-item">
+    <span>📊</span>
+    Graph
+  </a>
+  <a href="report" class="nav-item">
+    <span>📝</span>
+    Report
+  </a>
+</nav>
 
 <div class="main-wrapper">
     <div class="container">
@@ -91,7 +189,6 @@
     <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 CART</a>
     <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY </a>
     <a href="#" class="nav-item" onclick="location.reload();">📊 CANCEL</a>
-	<a href="#" class="nav-item" onclick="openModal('adminModal')">📊 ADMIN</a>
 </nav>
 
 <div id="logsModal" class="modal">
@@ -192,6 +289,10 @@
             <button class="btn-action btn-orange" style="width: 100%;" onclick="closeModal('statusModal')">OK</button>
         </div>
     </div>
+</div>
+
+<div id="navMenu" class="nav-menu">
+<a href="#" onclick="openModal('adminModal')"><i class="fas fa-chart-line"></i>&nbsp; Admin</a>
 </div>
 <script>
 // ================= DATA & DATABASE =================
@@ -632,6 +733,10 @@ function showStatus(msg, type = 'info') {
     
     openModal('statusModal');
 }
+
+  const navBtn = document.querySelector('.nav-btn');
+  const navMenu = document.getElementById('navMenu');
+  navBtn.addEventListener('click', () => navMenu.classList.toggle('show'));
 </script>
 
 </body>
