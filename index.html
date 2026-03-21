@@ -656,9 +656,9 @@ async function renderProducts() {
                 <span></span>
                 ${count > 0 ? (inCart ? `
                     <div style="display:flex; gap:40px; align-items:center;">
-                        <button onclick="changeQty(${p.id},-1)"  style="width:26px;height:26px;border:5px;border-radius:50px;background:#00C3FF;font-weight:bold;font-size:20px;">-</button>
+                        <button onclick="changeQty(${p.id},-1)"  style="width:26px;height:26px;border:5px;border-radius:5px;background:#00C3FF;font-weight:bold;font-size:20px;">-</button>
                         <span>${inCart.qty}</span>
-                        <button onclick="changeQty(${p.id},1)"  style="width:26px;height:26px;border:5px;border-radius:50px;background:#00C3FF;font-weight:bold;font-size:20px;">+</button>
+                        <button onclick="changeQty(${p.id},1)"  style="width:26px;height:26px;border:5px;border-radius:5px;background:#00C3FF;font-weight:bold;font-size:20px;">+</button>
                     </div>
                 ` : `<i class="fas fa-plus-circle" onclick="addToCart(${p.id})"></i>`) 
                 : '<span style="color:red; font-size:0.7rem;">SOLD OUT</span>'}
