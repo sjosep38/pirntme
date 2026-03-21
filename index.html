@@ -100,7 +100,7 @@
     display:flex;
     gap:8px;
   }
-  .nav a { color:#fff; text-decoration:none; background:transparent; padding:6px 10px; border-radius:6px; }
+  .nav a { color:#fff; text-decoration:none; background:; padding:6px 10px; border-radius:6px; }
   
   .nav-btn {
   border:none;
@@ -143,7 +143,6 @@
 .nav-menu a:hover {
   background:rgba(255,255,255,0.2);
 }
-#l
     </style>
 </head>
 
@@ -152,28 +151,6 @@
   <span>Dashboard</span>
   <button class="nav-btn">☰</button>
 </h3>
-<nav class="navbar">
-  <a href="openModal('adminModal')" class="nav-item">
-    <span>🏠</span>
-    Home
-  </a>
-  <a href="/logs" class="nav-item">
-    <span>📄</span>
-    Logs
-  </a>
-  <a href="/settings" class="nav-item">
-    <span>⚙️</span>
-    Settings
-  </a>
-  <a href="/graph" class="nav-item">
-    <span>📊</span>
-    Graph
-  </a>
-  <a href="report" class="nav-item">
-    <span>📝</span>
-    Report
-  </a>
-</nav>
 
 <div class="main-wrapper">
     <div class="container">
@@ -292,9 +269,26 @@
 </div>
 
 <div id="navMenu" class="nav-menu">
-<a href="#" onclick="openModal('adminModal')"><i class="fas fa-chart-line"></i>&nbsp; Admin</a>
+  <a href="#" id="homeLink" class="nav-item">
+    <span>🏠</span>
+    Voucher Management
+  </a>
+</div>
+  <a href="/graph"><i class="fas fa-chart-line"></i>&nbsp; Live Graph</a>
+  <a href="/logs"><i class="fas fa-file-alt"></i>&nbsp; Logs</a>
+  <a href="/weather"><i class="fas fa-cloud-sun"></i>&nbsp; Weather</a>
+  <a href="/settings"><i class="fas fa-cog"></i>&nbsp; Settings</a>
+  <a href="/help"><i class="fas fa-question-circle"></i>&nbsp; Help?</a>
+  <a href="/report"><i class="fas fa-chart-line"></i>&nbsp; Report</a>
 </div>
 <script>
+  const navBtn = document.querySelector('.nav-btn');
+  const navMenu = document.getElementById('navMenu');
+  navBtn.addEventListener('click', () => navMenu.classList.toggle('show'));
+  
+  
+
+
 // ================= DATA & DATABASE =================
 const products = [
     { id: 1, name: "1 HOUR", price: 5.00, image:"https://github.com/sjosep38/pirntme/blob/master/img/1h.png?raw=true" },
@@ -734,9 +728,21 @@ function showStatus(msg, type = 'info') {
     openModal('statusModal');
 }
 
-  const navBtn = document.querySelector('.nav-btn');
-  const navMenu = document.getElementById('navMenu');
-  navBtn.addEventListener('click', () => navMenu.classList.toggle('show'));
+function openModal(id) {
+  document.getElementById(id).style.display = 'block';
+}
+
+function closeNavMenu() {
+
+}
+
+const homeLink = document.getElementById('homeLink');
+
+homeLink.addEventListener('click', function (e) {
+  e.preventDefault(); // prevent page jump
+  openModal('adminModal'); // your existing function
+  navMenu.classList.toggle('show'); // hide menu
+});
 </script>
 
 </body>
