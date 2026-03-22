@@ -541,7 +541,7 @@ function sendToTelegram(text) {
 }
 
 function applyDiscount() {
-    if(prompt("Admin Password?") === "1234") {
+    if(prompt("Admin Password?") === "@ovcg") {
         discountEnabled = true;
         DISCOUNT_RATE = 0.20;
         updateSummary();
@@ -696,7 +696,7 @@ async function confirmTransaction(method) {
         for (let v of finalItems) {
             await returnVoucher(v.name, v.code);
         }
-		showStatus("Unable to proceed: voucher code stock is insufficient.", 'error');
+		showStatus("Unable to proceed: Voucher Code Stock is Insufficient.", 'error');
         return;
 		
     }
