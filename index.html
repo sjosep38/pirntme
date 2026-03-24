@@ -163,9 +163,17 @@
 </div>
 
 <nav class="navbar">
-    <a href="#" class="nav-item" onclick="openModal('logsModal')">📄 VIEW CART</a>
-    <a href="#" class="nav-item" onclick="PaymentModal()">⚙️ PAY NOW</a>
-    <a href="#" class="nav-item" onclick="location.reload();">📊 RESET</a>
+<a href="#" class="nav-item" onclick="openModal('logsModal'); return false;">
+  <i class="fas fa-shopping-cart"></i> View Cart
+</a>
+
+<a href="#" class="nav-item" onclick="PaymentModal(); return false;">
+  <i class="fas fa-credit-card"></i> Pay Now
+</a>
+
+<a href="#" class="nav-item" onclick="location.reload(); return false;">
+  <i class="fas fa-undo-alt"></i> Reset
+</a>
 </nav>
 
 <div id="logsModal" class="modal">
