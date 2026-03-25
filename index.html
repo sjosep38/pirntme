@@ -616,11 +616,43 @@ function sendToTelegram(text) {
     });
 }
 
+let attempts = 0;
+let lockUntil = 0;
+
 function applyDiscount() {
-    if(prompt("Admin Password?") === "@ovcgxxx") {
+    const now = Date.now();
+
+    // Check if system is locked
+    if (now < lockUntil) {
+        const remaining = Math.ceil((lockUntil - now) / 1000);
+        alert(`⛔ Discount locked!. Try again in ${remaining} seconds.`);
+        return;
+    }
+
+    const password = prompt("Enter Admin Password:");
+
+    if (!password) return; // user cancelled
+
+    if (password === "@ovcgxxx") {
+        // Reset on success
+        attempts = 0;
+
         discountEnabled = true;
         DISCOUNT_RATE = 0.20;
         updateSummary();
+
+        alert("✅ Discount successfully applied!");
+    } else {
+        attempts++;
+
+        if (attempts >= 3) {
+            lockUntil = Date.now() + 60 * 1000; // 1 minute lock
+            attempts = 0;
+
+            alert("⛔ Too many failed attempts. Discount locked! Try again later.");
+        } else {
+            alert(`❌ Incorrect password. Attempts left: ${3 - attempts}`);
+        }
     }
 }
 
