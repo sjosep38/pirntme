@@ -143,6 +143,48 @@
 .nav-menu a:hover {
   background:rgba(255,255,255,0.2);
 }
+
+.inventory-table {
+ background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%);
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-family: sans-serif;
+}
+
+.inventory-table th {
+    text-align: center;
+    background-color: #f4f4f4;
+    padding: 12px 8px;
+    border-bottom: 2px solid #ddd;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.inventory-table td {
+ text-align: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.time-col {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.qty-col {
+    font-weight: bold;
+    color: WHITE;
+    text-align: right;
+}
+
+/* Optional: Highlight row on hover */
+.inventory-table tr:hover {
+    background-color: orange;
+}
+
+
     </style>
 </head>
 
@@ -227,6 +269,20 @@
 </div>
     </div>
 </div>
+
+<div id="inventoryModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeModal()"></span>
+    <h2><center>Current Stock</center></h2>
+    <hr>
+    <div id="inventoryList">
+        </div>
+	
+		<button class="btn-action btn-gray"  style="width: 100%; margin-top: 10px; font-size: 0.9rem;" onclick="closeModal('inventoryModal')">Back</button>
+  </div>
+  
+</div>
+
 <div id="PaymentModal" class="modal">
     <div class="modal-content">
         <div style="background: #1a1a1a; padding:20px; border-radius:15px; border: 2px solid #00C3FF;">
@@ -782,6 +838,69 @@ function openDB() {
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject("DB failed to open");
     });
+}
+function checkInventory() {
+    const tx = db.transaction("vouchers", "readonly");
+    const store = tx.objectStore("vouchers");
+    
+    store.getAll().onsuccess = (e) => {
+        const vouchers = e.target.result;
+        const listContainer = document.getElementById("inventoryList");
+        listContainer.innerHTML = ""; 
+
+        if (vouchers.length === 0) {
+            listContainer.innerHTML = "<p style='text-align:center; padding:20px;'>Database is empty.</p>";
+        } else {
+            // Group data by name to get count and the latest timestamp
+            const inventory = vouchers.reduce((acc, v) => {
+                if (!acc[v.name]) {
+                    acc[v.name] = { count: 0, lastUpdated: 0 };
+                }
+                acc[v.name].count += 1;
+                
+                // Assuming your voucher object has a 'timestamp' or 'date' field
+                // If not, we can use the current time as the "Last Checked" time
+                const itemTime = v.timestamp || new Date().getTime(); 
+                if (itemTime > acc[v.name].lastUpdated) {
+                    acc[v.name].lastUpdated = itemTime;
+                }
+                return acc;
+            }, {});
+
+            // Build the Table
+            let tableHtml = `
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>VOUCHER NAME</th>
+                            <th>PACKAGE</th>
+                            <th>QUANTITY LEFT</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            for (const name in inventory) {
+                const timeString = new Date(inventory[name].lastUpdated).toLocaleTimeString([], {
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                });
+                
+                tableHtml += `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td><strong>Unlimited Internet</strong></td>
+                        <td class="qty-col"><strong>${inventory[name].count}</strong></td>
+
+                    </tr>`;
+            }
+
+            tableHtml += `</tbody></table>`;
+            listContainer.innerHTML = tableHtml;
+        }
+
+        document.getElementById("inventoryModal").style.display = "block";
+    };
 }
 </script>
 
