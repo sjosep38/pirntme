@@ -278,7 +278,7 @@
     <div id="inventoryList">
         </div>
 	
-		<button class="btn-action btn-gray"  style="width: 100%; margin-top: 10px; font-size: 0.9rem;" onclick="closeModal('inventoryModal')">Back</button>
+		<button class="btn-action btn-gray"  style="width: 100%; margin-top: 10px;margin-bottom: 10px; font-size: 0.9rem;" onclick="closeModal('inventoryModal')">Back</button>
   </div>
   
 </div>
@@ -889,8 +889,8 @@ function checkInventory() {
                 tableHtml += `
                     <tr>
                         <td><strong>${name}</strong></td>
-                        <td><strong>Unlimited</strong></td>
-                        <td class="qty-col"><strong>${inventory[name].count}</strong></td>
+                        <td><strong><center>Unlimited</center></strong></td>
+                        <td class="qty-col"><strong><center>${inventory[name].count}</center></strong></td>
 
                     </tr>`;
             }
