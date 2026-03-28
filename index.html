@@ -244,6 +244,22 @@
     </div>
 </div>
 
+<div id="salesReportModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:#114;">
+    <div style="background:#115; color:white; margin:1% auto; padding:20px; width:80%; max-width:400px; border-radius:10px; border: 2px dashed #58a6ff;">
+        <h3 style="text-align:center; border-bottom:1px solid #333; padding-bottom:10px;">Sales Report</h3>
+        <div id="reportContent"></div>
+        <button onclick="closeModal('salesReportModal')" style="width:100%; margin-top:20px; padding:10px; background:#444; color:white; border:none; border-radius:5px;">Close</button>
+    	<div id="reportContent"></div>
+<button onclick="resetSalesData()" style="width:100%; margin-top:10px; padding:10px; background:#8b0000; color:white; border:none; border-radius:5px; font-size: 0.8rem; cursor: pointer;">
+    <i class="fas fa-trash-alt"></i> RESET ALL SALES DATA
+</button>
+<button onclick="downloadSalesCSV()" style="width:100%; margin-top:10px; padding:10px; background:#2e7d32; color:white; border:none; border-radius:5px; font-size: 0.8rem; cursor: pointer;">
+    <i class="fas fa-file-excel"></i> DOWNLOAD SALES (CSV)
+</button>
+</div>
+	</div>
+
+
 <div id="adminModal" class="modal">
     <div class="modal-content">
         <div style="margin-top: 20px; padding: 15px; border: 2px dashed #58a6ff; border-radius: 8px; background: #115;">
@@ -339,7 +355,7 @@
     <i class="fas fa-ticket-alt"></i> Voucher Manager
   </a>
 
-  <a href="#" onclick="checkInventory(); document.getElementById('navMenu').classList.toggle('show'); return false;">
+  <a href="#" onclick="salesReportModal(); document.getElementById('navMenu').classList.toggle('show'); return false;">
     <i class="fas fa-boxes"></i> Stock Inventory
   </a>
 
@@ -351,10 +367,9 @@
     <i class="fas fa-cogs"></i> System Settings
   </a>
 
-  <a href="#">
+  <a href="#" onclick="generateSalesReport(); document.getElementById('navMenu').classList.toggle('show'); return false;">
     <i class="fas fa-chart-bar"></i> Sales Report
   </a>
-
   <a href="#">
     <i class="fas fa-question-circle"></i> Need Help?
   </a>
@@ -382,15 +397,23 @@ let finalTotal = 0;
 let discountEnabled = false;
 let DISCOUNT_RATE = 0;
 
+
 // Initialize DB
-const request = indexedDB.open("VoucherStore", 1);
+const request = indexedDB.open("VoucherStore", 2); // Incremented version to 2
 request.onupgradeneeded = (e) => {
     db = e.target.result;
-    let store = db.createObjectStore("vouchers", { keyPath: "id", autoIncrement: true });
-    store.createIndex("name", "name", { unique: false });
+    // Voucher Store
+    if (!db.objectStoreNames.contains("vouchers")) {
+        let store = db.createObjectStore("vouchers", { keyPath: "id", autoIncrement: true });
+        store.createIndex("name", "name", { unique: false });
+    }
+    // Sales Store
+    if (!db.objectStoreNames.contains("sales")) {
+        let salesStore = db.createObjectStore("sales", { keyPath: "id", autoIncrement: true });
+        salesStore.createIndex("date", "date", { unique: false });
+    }
 };
 request.onsuccess = (e) => { db = e.target.result; renderProducts(); };
-
 // ================= VOUCHER STORAGE LOGIC =================
 
 function addVoucherToDB(name, code) {
@@ -604,6 +627,10 @@ window.location.href =
     "end;";
     p.document.close();
 	// Secondary Actions
+	
+	// INSIDE YOUR printReceipt FUNCTION:
+// ... after the receipt string is built ...
+recordSale(finalTotal);
     if (typeof sendToTelegram === "function") sendToTelegram(receipt);
     cart = []; // Ensure 'cart' is defined globally
     if (typeof renderCart === "function") renderCart();
@@ -936,6 +963,131 @@ function checkInventory() {
         }
 
         document.getElementById("inventoryModal").style.display = "block";
+    };
+}
+
+function recordSale(amount) {
+    let tx = db.transaction("sales", "readwrite");
+    let store = tx.objectStore("sales");
+    store.add({
+        amount: amount,
+        date: new Date().toISOString() // Stores as 2023-10-27T...
+    });
+}
+
+function generateSalesReport() {
+    let tx = db.transaction("sales", "readonly");
+    let store = tx.objectStore("sales");
+    let request = store.getAll();
+
+    request.onsuccess = (e) => {
+        const allSales = e.target.result;
+        const now = new Date();
+        
+        let daily = 0, weekly = 0, monthly = 0;
+
+        allSales.forEach(sale => {
+            let saleDate = new Date(sale.date);
+            let diffTime = Math.abs(now - saleDate);
+            let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // Daily (Same calendar day)
+            if (saleDate.toDateString() === now.toDateString()) daily += sale.amount;
+            
+            // Weekly (Last 7 days)
+            if (diffDays <= 7) weekly += sale.amount;
+            
+            // Monthly (Same month and year)
+            if (saleDate.getMonth() === now.getMonth() && saleDate.getFullYear() === now.getFullYear()) {
+                monthly += sale.amount;
+            }
+        });
+
+        document.getElementById("reportContent").innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">
+                <div style="background: #222; padding: 15px; border-radius: 8px; border-left: 5px solid #00C3FF;">
+                    <small>TODAY'S SALES</small>
+                    <h2 style="margin:0; color:#00ff00;">₱${daily.toFixed(2)}</h2>
+                </div>
+                <div style="background: #222; padding: 15px; border-radius: 8px; border-left: 5px solid #ffcc00;">
+                    <small>THIS WEEK (7 DAYS)</small>
+                    <h2 style="margin:0;">₱${weekly.toFixed(2)}</h2>
+                </div>
+                <div style="background: #222; padding: 15px; border-radius: 8px; border-left: 5px solid #ff4444;">
+                    <small>THIS MONTH</small>
+                    <h2 style="margin:0;">₱${monthly.toFixed(2)}</h2>
+                </div>
+            </div>
+        `;
+        openModal('salesReportModal');
+    };
+}
+
+const salesLink = document.getElementById('salesLink');
+salesLink.addEventListener('click', function (e) {
+  e.preventDefault(); 
+  generateSalesReport();
+  navMenu.classList.remove('show'); // Hides the menu after clicking
+});
+
+function resetSalesData() {
+    const password = prompt("Enter Admin Password to CLEAR ALL SALES:");
+    
+    if (password === "@ovcgxxx") {
+        if (confirm("WARNING: This will permanently delete all daily, weekly, and monthly sales records. Proceed?")) {
+            let tx = db.transaction("sales", "readwrite");
+            let store = tx.objectStore("sales");
+            let request = store.clear();
+
+            request.onsuccess = () => {
+                alert("✅ Sales database cleared successfully.");
+                generateSalesReport(); // Refresh the modal view to show 0.00
+            };
+            
+            request.onerror = () => {
+                alert("❌ Error clearing database.");
+            };
+        }
+    } else if (password !== null) {
+        alert("❌ Incorrect Password. Reset aborted.");
+    }
+}
+
+function downloadSalesCSV() {
+    let tx = db.transaction("sales", "readonly");
+    let store = tx.objectStore("sales");
+    let request = store.getAll();
+
+    request.onsuccess = (e) => {
+        const allSales = e.target.result;
+        if (allSales.length === 0) {
+            alert("No sales data found to download.");
+            return;
+        }
+
+        // CSV Header
+        let csvContent = "Date,Time,Amount (PHP)\n";
+
+        // Rows
+        allSales.forEach(sale => {
+            let d = new Date(sale.date);
+            let dateStr = d.toLocaleDateString();
+            let timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            csvContent += `${dateStr},${timeStr},${sale.amount.toFixed(2)}\n`;
+        });
+
+        // Create a downloadable file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Sales_Report_${new Date().toLocaleDateString()}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 }
 </script>
