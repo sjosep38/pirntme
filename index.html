@@ -369,6 +369,16 @@
         </div>
     </div>
 </div>
+<div id="txnHistoryModal" class="modal" style="display:none; z-index: 2100;">
+    <div class="modal-content" style="background: #111; color: #eee; border: 1px solid #444; border-radius: 15px; padding: 20px; max-width: 500px; margin: 5% auto; max-height: 80vh; display: flex; flex-direction: column;">
+        <h3 style="color: #00C3FF; text-align: center; margin-top: 0;">TRANSACTION LOGS</h3>
+        
+        <div id="txnHistoryList" style="overflow-y: auto; flex-grow: 1; padding-right: 5px;">
+            </div>
+
+        <button onclick="closeModal('txnHistoryModal')" style="width: 100%; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; margin-top: 15px; cursor: pointer;">CLOSE</button>
+    </div>
+</div>
 
 <div id="navMenu" class="nav-menu">
   <a href="#" id="homeLink" class="nav-item">
@@ -379,10 +389,10 @@
     <i class="fas fa-boxes"></i> Stock Inventory
   </a>
 
-  <a href="#" onclick=" transactionModal (); document.getElementById('navMenu').classList.toggle('show'); return false;">
+  <a href="#" onclick="showTxnHistory(); document.getElementById('navMenu').classList.toggle('show'); return false;">
 	<i class="fas fa-exchange-alt"></i> Transaction Logs
   </a>
-
+<a href="#" onclick="showTxnHistory()">Transaction History</a>
   <a href="#">
     <i class="fas fa-cogs"></i> System Settings
   </a>
@@ -561,47 +571,40 @@ async function confirmTransaction(method) {
     printReceipt(method, finalItems, cashIn, cashIn - finalTotal);
 }
 
-function printReceipt(method, items, received, change) {
+async function printReceipt(method, items, received, change) {
     const MAX_WIDTH = 32; // Standard for POS58
     const line = "-".repeat(MAX_WIDTH) + "\n";
-    
-    // Calculate Total since it's used in the summary
     const finalTotal = items.reduce((sum, i) => sum + i.price, 0);
 
+    // --- 1. BUILD THE RECEIPT STRING ---
     let receipt = `\n`;
-    receipt += `         WIFI CONNECT  \n`.padStart(MAX_WIDTH / 2); 
-    receipt += ` #36 Donnan Bldg Josepina St. \n`;
-	 receipt += `   4th Avenue Caloocan city \n`;
-	receipt += ` Mobile Number : 0950 682 5698 \n`;
+    receipt += `WIFI CONNECT`.padStart((MAX_WIDTH + 12) / 2) + `\n`; 
+    receipt += `#36 Donnan Bldg Josepina St.\n`;
+    receipt += `4th Avenue Caloocan city\n`;
+    receipt += `Mobile: 0950 682 5698\n`;
     receipt += line;
     receipt += `${new Date().toLocaleString()}\n`;
     receipt += `Payment: ${method}\n`;
     receipt += line;
 
-    // --- ITEMS SECTION ---
+    // Items Section
     items.forEach(i => {
-        let label = `${i.name} [ ${i.code} ]`;
+        let label = `${i.name} [${i.code}]`;
         let price = i.price.toFixed(2);
-        
-        // If label + price is too long, we wrap the label
         if ((label.length + price.length) >= MAX_WIDTH) {
-            receipt += `${label}\n`; // Name on its own line
-            receipt += price.padStart(MAX_WIDTH) + "\n"; // Price aligned right
+            receipt += `${label}\n${price.padStart(MAX_WIDTH)}\n`;
         } else {
-            // Calculate exact padding to push price to the far right
             let padding = MAX_WIDTH - label.length;
             receipt += `${label}${price.padStart(padding)}\n`;
         }
     });
 
     receipt += line;
-    
-    // --- SUMMARY SECTION ---
-    // This function ensures the colon stays with the label 
-    // and the price stays glued to the right margin.
+
+    // Summary Section
     const formatSummaryRow = (label, value) => {
         let key = `${label}:`;
-        let valStr = value.toFixed(2);
+        let valStr = Number(value).toFixed(2);
         let padding = MAX_WIDTH - key.length;
         return `${key}${valStr.padStart(padding)}\n`;
     };
@@ -611,59 +614,43 @@ function printReceipt(method, items, received, change) {
     receipt += formatSummaryRow("CHANGE", change);
     
     receipt += line;
-	receipt += `Voucher Code is not Transferable\n`;
-    receipt += `Thank you for your Purchase!\n`;
-    receipt += `\n\n\n`;
+    receipt += `Voucher Code is not Transferable\n`;
+    receipt += `Thank you for your Purchase!\n\n\n`;
 
-    // --- PRINTING ---
+    // --- 2. EXECUTE ACTIONS ---
+
+    // A. Record Sale (Full object for your reporting)
+    if (typeof recordSale === "function") {
+        recordSale({ 
+            amount: finalTotal, 
+            method: method, 
+            received: received, 
+            change: change, 
+            items: items 
+        });
+    }
+
+    // B. Send to Telegram
+    if (typeof sendToTelegram === "function") {
+        sendToTelegram(receipt);
+    }
+
+    // C. Web Print (Popup)
     let p = window.open('', '', 'width=400,height=600');
-    p.document.write(`
-        <html>
-        <head>
-            <style>
-                pre { 
-                    font-family: monospace; /* Essential for character alignment */
-                    font-size: 28px; 
-                    white-space: pre; 
-                }
-            </style>
-        </head>
-        <body onload="window.print(); window.close();">
-            <pre>${receipt}</pre>
-        </body>
-        </html>
-    `);
-	
-	// Encode receipt safely
-let encodedText = encodeURIComponent(receipt);
-
-// Open Bluetooth printing intent
-window.location.href =
-    "intent://sendtext#Intent;" +
-    "action=android.intent.action.SEND;" +
-    "package=mate.bluetoothprint;" +
-    "S.android.intent.extra.TEXT=" + encodedText + ";" +
-    "type=text/plain;" +
-    "end;";
+    p.document.write(`<html><head><style>pre{font-family:monospace;font-size:24px;white-space:pre;}</style></head>
+        <body onload="window.print(); window.close();"><pre>${receipt}</pre></body></html>`);
     p.document.close();
-	// Secondary Actions
-	
-	// INSIDE YOUR printReceipt FUNCTION:
-// ... after the receipt string is built ...
-recordSale(finalTotal);
-    if (typeof sendToTelegram === "function") sendToTelegram(receipt);
-    cart = []; // Ensure 'cart' is defined globally
+
+    // D. Bluetooth Print Intent
+    let encodedText = encodeURIComponent(receipt);
+    window.location.href = `intent://sendtext#Intent;action=android.intent.action.SEND;package=mate.bluetoothprint;S.android.intent.extra.TEXT=${encodedText};type=text/plain;end;`;
+
+    // --- 3. UI CLEANUP ---
+    cart = []; 
     if (typeof renderCart === "function") renderCart();
     if (typeof closeModal === "function") closeModal('PaymentModal');
+    if (typeof showStatus === "function") showStatus("Transaction Successful", "success");
 }
-function sendToTelegram(text) {
-    fetch(`https://api.telegram.org/bot8329561822:AAFPc5wqF3n4YX_-KQM3_iVpdn_XOciyl_0/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: "6975478760", text: text })
-    });
-}
-
 let attempts = 0;
 let lockUntil = 0;
 
@@ -985,14 +972,22 @@ function checkInventory() {
         document.getElementById("inventoryModal").style.display = "block";
     };
 }
-
-function recordSale(amount) {
+function recordSale(data) {
     let tx = db.transaction("sales", "readwrite");
     let store = tx.objectStore("sales");
-    store.add({
-        amount: amount,
-        date: new Date().toISOString() // Stores as 2023-10-27T...
-    });
+    
+    // Create the object with fallback values to avoid "undefined"
+    const saleEntry = {
+        amount: data.amount || 0,
+        date: new Date().toISOString(),
+        method: data.method || 'Cash', // Default to Cash if undefined
+        received: data.received || 0,
+        change: data.change || 0,
+        // Join the codes into a single readable string
+        codes: data.items ? data.items.map(i => `${i.name}: ${i.code}`).join(", ") : "No Codes"
+    };
+
+    store.add(saleEntry);
 }
 
 function generateSalesReport() {
@@ -1110,6 +1105,62 @@ function downloadSalesCSV() {
         link.click();
         document.body.removeChild(link);
     };
+}
+function showTxnHistory() {
+    let tx = db.transaction("sales", "readonly");
+    let store = tx.objectStore("sales");
+    let request = store.getAll();
+
+    request.onsuccess = (e) => {
+        const sales = e.target.result.reverse(); // Newest first
+        const container = document.getElementById("txnHistoryList");
+        
+        if (sales.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color: #666;'>No transactions found.</p>";
+        } else {
+            container.innerHTML = sales.map(s => {
+                let d = new Date(s.date);
+                return `
+                <div style="background: #222; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid ${s.method === 'Cash' ? '#00C3FF' : '#ffcc00'}; font-size: 13px;">
+                    <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: #888;">${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                        <strong style="color: #00ff00;">₱${s.amount.toFixed(2)}</strong>
+                    </div>
+                    <div style="color: #ccc; margin-bottom: 5px;"><strong>Codes:</strong> ${s.codes || 'N/A'}</div>
+                    <div style="display:flex; gap: 15px; font-size: 11px; color: #888;">
+                        <span>Method: ${s.method}</span>
+                        <span>Paid: ₱${s.cash ? s.cash.toFixed(2) : '0.00'}</span>
+                        <span>Change: ₱${s.change ? s.change.toFixed(2) : '0.00'}</span>
+                    </div>
+                </div>`;
+            }).join("");
+        }
+        openModal('txnHistoryModal');
+    };
+}
+function sendToTelegram(text) {
+    const botToken = "8329561822:AAFPc5wqF3n4YX_-KQM3_iVpdn_XOciyl_0";
+    const chatId = "6975478760";
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            chat_id: chatId, 
+            text: text 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log("Telegram: Message sent successfully!");
+        } else {
+            console.error("Telegram Error:", data.description);
+            // This will tell you if the Chat ID is wrong or the Bot is blocked
+            alert("Telegram Error: " + data.description); 
+        }
+    })
+    .catch(error => console.error("Network Error:", error));
 }
 </script>
 </body>
