@@ -369,10 +369,11 @@
         </div>
     </div>
 </div>
+
 <div id="txnHistoryModal" class="modal" style="display:none; z-index: 2100;">
-    <div class="modal-content" style="background: #111; color: #eee; border: 1px solid #444; border-radius: 15px; padding: 20px; max-width: 500px; margin: 5% auto; max-height: 80vh; display: flex; flex-direction: column;">
+    <div class="modal-content" style="background: #111; color: #eee; border: 1px solid #111; border-radius: 15px; padding: 20px; max-width: 500px; margin: 1% auto; max-height: 95vh; display: flex; flex-direction: column;">
         <h3 style="color: #00C3FF; text-align: center; margin-top: 0;">TRANSACTION LOGS</h3>
-        
+        <br>
         <div id="txnHistoryList" style="overflow-y: auto; flex-grow: 1; padding-right: 5px;">
             </div>
 
@@ -392,7 +393,6 @@
   <a href="#" onclick="showTxnHistory(); document.getElementById('navMenu').classList.toggle('show'); return false;">
 	<i class="fas fa-exchange-alt"></i> Transaction Logs
   </a>
-<a href="#" onclick="showTxnHistory()">Transaction History</a>
   <a href="#">
     <i class="fas fa-cogs"></i> System Settings
   </a>
@@ -576,12 +576,19 @@ async function printReceipt(method, items, received, change) {
     const line = "-".repeat(MAX_WIDTH) + "\n";
     const finalTotal = items.reduce((sum, i) => sum + i.price, 0);
 
-    // --- 1. BUILD THE RECEIPT STRING ---
-    let receipt = `\n`;
-    receipt += `WIFI CONNECT`.padStart((MAX_WIDTH + 12) / 2) + `\n`; 
-    receipt += `#36 Donnan Bldg Josepina St.\n`;
-    receipt += `4th Avenue Caloocan city\n`;
-    receipt += `Mobile: 0950 682 5698\n`;
+
+// Helper function to center any string perfectly
+const center = (text) => {
+    const margin = Math.max(0, Math.floor((MAX_WIDTH - text.trim().length) / 2));
+    return " ".repeat(margin) + text.trim() + "\n";
+};
+
+let receipt = `\n`;
+receipt += center("WIFI CONNECT");
+receipt += center("#36 Donnan Bldg Josepina St.");
+receipt += center("4th Avenue Caloocan city");
+receipt += center("Mobile: 0950 682 5698");
+receipt += "-".repeat(MAX_WIDTH) + "\n"; // Separator line
     receipt += line;
     receipt += `${new Date().toLocaleString()}\n`;
     receipt += `Payment: ${method}\n`;
@@ -635,7 +642,14 @@ async function printReceipt(method, items, received, change) {
         sendToTelegram(receipt);
     }
 
-    // C. Web Print (Popup)
+
+    // --- 3. UI CLEANUP ---
+    cart = []; 
+    if (typeof renderCart === "function") renderCart();
+    if (typeof closeModal === "function") closeModal('PaymentModal');
+    if (typeof showStatus === "function") showStatus("Transaction Successful", "success");
+	
+	    // C. Web Print (Popup)
     let p = window.open('', '', 'width=400,height=600');
     p.document.write(`<html><head><style>pre{font-family:monospace;font-size:24px;white-space:pre;}</style></head>
         <body onload="window.print(); window.close();"><pre>${receipt}</pre></body></html>`);
@@ -645,12 +659,10 @@ async function printReceipt(method, items, received, change) {
     let encodedText = encodeURIComponent(receipt);
     window.location.href = `intent://sendtext#Intent;action=android.intent.action.SEND;package=mate.bluetoothprint;S.android.intent.extra.TEXT=${encodedText};type=text/plain;end;`;
 
-    // --- 3. UI CLEANUP ---
-    cart = []; 
-    if (typeof renderCart === "function") renderCart();
-    if (typeof closeModal === "function") closeModal('PaymentModal');
-    if (typeof showStatus === "function") showStatus("Transaction Successful", "success");
+	
 }
+
+
 let attempts = 0;
 let lockUntil = 0;
 
