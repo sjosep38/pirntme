@@ -377,32 +377,20 @@
         <div id="txnHistoryList" style="overflow-y: auto; flex-grow: 1; padding-right: 5px;">
             </div>
 
-        <button onclick="closeModal('txnHistoryModal')" style="width: 100%; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; margin-top: 15px; cursor: pointer;">CLOSE</button>
-    </div>
+		<div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="clearTransactionLogs()" style="flex: 1; background: #ff4444; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">CLEAR LOGS</button>
+            <button onclick="closeModal('txnHistoryModal')" style="flex: 1; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">CLOSE</button>
+        </div>
+</div>
 </div>
 
 <div id="navMenu" class="nav-menu">
-  <a href="#" id="homeLink" class="nav-item">
-    <i class="fas fa-ticket-alt"></i> Voucher Manager
-  </a>
-
-  <a href="#" onclick=" checkInventory(); document.getElementById('navMenu').classList.toggle('show'); return false;">
-    <i class="fas fa-boxes"></i> Stock Inventory
-  </a>
-
-  <a href="#" onclick="showTxnHistory(); document.getElementById('navMenu').classList.toggle('show'); return false;">
-	<i class="fas fa-exchange-alt"></i> Transaction Logs
-  </a>
-  <a href="#">
-    <i class="fas fa-cogs"></i> System Settings
-  </a>
-
-  <a href="#" onclick="generateSalesReport(); document.getElementById('navMenu').classList.toggle('show'); return false;">
-    <i class="fas fa-chart-bar"></i> Sales Report
-  </a>
-  <a href="#">
-    <i class="fas fa-question-circle"></i> Need Help?
-  </a>
+  <a href="#" id="homeLink" class="nav-item"><i class="fas fa-ticket-alt"></i> Voucher Manager</a>
+  <a href="#" onclick=" checkInventory(); document.getElementById('navMenu').classList.toggle('show'); return false;"><i class="fas fa-boxes"></i> Stock Inventory</a>
+  <a href="#" onclick="showTxnHistory(); document.getElementById('navMenu').classList.toggle('show'); return false;"><i class="fas fa-exchange-alt"></i> Transaction Logs</a>
+  <a href="#" onclick="generateSalesReport(); document.getElementById('navMenu').classList.toggle('show'); return false;"><i class="fas fa-chart-bar"></i> Sales Report</a>
+  <a href="#"><i class="fas fa-cogs"></i> System Settings</a>
+  <a href="#"><i class="fas fa-question-circle"></i> Need Help?</a>
 </div>
 <Script>
 
@@ -1173,6 +1161,29 @@ function sendToTelegram(text) {
         }
     })
     .catch(error => console.error("Network Error:", error));
+}
+function clearTransactionLogs() {
+    const password = prompt("Enter Admin Password to clear logs:");
+
+    if (password === "@ovcgxxx") {
+        if (confirm("Are you sure? This will permanently delete all transaction history records.")) {
+            let tx = db.transaction("sales", "readwrite");
+            let store = tx.objectStore("sales");
+            let request = store.clear();
+
+            request.onsuccess = () => {
+                alert("✅ Transaction logs cleared successfully.");
+                // Refresh the list immediately so it shows "No transactions found"
+                showTxnHistory(); 
+            };
+
+            request.onerror = () => {
+                alert("❌ Error clearing logs from database.");
+            };
+        }
+    } else if (password !== null) {
+        alert("❌ Incorrect Password. Access denied.");
+    }
 }
 </script>
 </body>
