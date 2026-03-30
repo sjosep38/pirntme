@@ -1131,7 +1131,7 @@ function showTxnHistory() {
 
     <div style="margin-bottom: 10px;">
         <div style="color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">Voucher Code (s):</div>
-        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 75px; overflow-y: auto; padding-right: 5px;">
+        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 75px; min-height: 75px; overflow-y: auto; padding-right: 5px;">
             ${(s.codes || 'N/A').split(',').map(code => `
                 <div style="
                     background: rgba(255, 255, 255, 0.05); 
