@@ -28,11 +28,9 @@
         .cart { background:#114; padding:15px; border-radius:15px; display:flex; flex-direction:column; height: 95vh; }
         .cart-items { flex:1; overflow-y:auto; margin-bottom: 10px;background:#114; border-radius:5px;}
         .cart-item { background: linear-gradient(0deg,rgba(67, 67, 204, 0.25) 0%, rgba(130, 56, 143, 0.25) 89%); display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:10px; border-radius:5px; }
-        
-        /* SUMMARY */
+	   /* SUMMARY */
         .summary { border-top:1px solid #444; padding-top:10px; }
-        .summary div { display:flex; justify-content:space-between; margin:5px 0; }
-        
+        .summary div { display:flex; justify-content:space-between; margin:5px 0; }      
         /* BUTTONS */
         .btn-action { padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; color: white; flex: 1; margin-top:5px; }
         .btn-orange { background: orange;}
@@ -40,7 +38,6 @@
         .btn-green { background: green; width:100%}
 		.btn-red { background: red; width:100%;}
 		
-
         /* PAYMENT UI */
         .payment-methods { display:flex; gap:10px; margin: 15px 0; }
         .payment-methods button { flex:1; padding:15px; border:none; border-radius:8px; cursor:pointer; background:#2a2a2a; color:white; font-weight:bold; }
@@ -71,12 +68,9 @@
         color: black;
         box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
         transform: scale(1.05);
-    }
-	
+    }	
 	#statusMessage { white-space: pre-wrap; }
-	
-	
-	  .dashboard-header {
+.dashboard-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -86,8 +80,7 @@
   color: #fff;
   font-size: 1.1rem;
   margin-bottom: 5px;
-}
-  
+} 
   .header h3 { margin:0; font-size:1.05rem; }
   .card {
     background: linear-gradient(135deg,#002244,#003355);
@@ -102,8 +95,7 @@
     display:flex;
     gap:8px;
   }
-  .nav a { color:#fff; text-decoration:none; background:; padding:6px 10px; border-radius:6px;}
-  
+  .nav a { color:#fff; text-decoration:none; background:; padding:6px 10px; border-radius:6px;}  
   .nav-btn {
   border:none;
   background:transparent;
@@ -113,11 +105,9 @@
   border-radius:6px;
   cursor:pointer;
 }
-
 .nav-btn:active {
   background:rgba(255,255,255,0.5);
 }
-
 .nav-menu {
   position:absolute;
   top:50px;
@@ -129,23 +119,18 @@
   display:none;
   flex-direction:column;
 }
-
-.nav-menu.show {
-  
+.nav-menu.show { 
   display:flex;
 }
-
 .nav-menu a {
   color:#fff;
   text-decoration:none;
   padding:6px 10px;
   border-radius:6px;
 }
-
 .nav-menu a:hover {
   background:rgba(255,255,255,0.2);
 }
-
 .inventory-table {
  background: linear-gradient(0deg,rgba(42, 110, 117, 0.25) 0%, rgba(192, 20, 255, 0.25) 100%);
     width: 100%;
@@ -154,7 +139,6 @@
     font-family: sans-serif;
 	
 }
-
 .inventory-table th {
     text-align: center;
     background-color: #f4f4f4;
@@ -164,7 +148,6 @@
     color: #666;
 	
 }
-
 .inventory-table td {
  text-align: Left;
     padding: 12px 8px;
@@ -172,18 +155,15 @@
     vertical-align: middle;
 	
 }
-
 .time-col {
     color: #888;
     font-size: 0.85rem;
 }
-
 .qty-col {
     font-weight: bold;
     color: WHITE;
     text-align: right;
 }
-
 /* Optional: Highlight row on hover */
 .inventory-table tr:hover {
     background-color: orange;
@@ -324,10 +304,18 @@
         <div style="background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #00C3FF; text-align: center;">
             <i id="statusIcon" class="fas fa-info-circle" style="font-size: 40px; color: orange; margin-bottom: 15px;"></i>
             <p id="statusMessage" style="font-size: 1.1rem; line-height: 1.5; margin-bottom: 20px;"></p>
-            <button class="btn-action btn-orange" style="width: 100%;" onclick="closeModal('statusModal')">OK</button>
-        </div>
+            <button id="okbtn"  class="btn-action btn-orange" style="width: 100%;" onclick="closeModal('statusModal')">OK</button>
+<button 
+  id="manualPrintBtn" 
+  onclick="triggerManualPrint(); closeModal('PaymentModal'); closeModal('statusModal');" 
+  style="width: 100%; display:none; padding: 15px 25px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;"
+>
+  🖨️ Print Receipt
+</button>
+			 </div>
     </div>
 </div>
+
 <div id="txnHistoryModal" class="modal" style="display:none; z-index: 2100;">
     <div class="modal-content" style="background: #111; color: #eee; border: 1px solid #111; border-radius: 15px; padding: 10px; max-width: 500px; margin: 1% auto; max-height: 95vh; display: flex; flex-direction: column;">
         <h3 style="color: #00C3FF; text-align: center; margin-top: 0;">TRANSACTION LOGS</h3>
@@ -470,6 +458,7 @@ function PaymentModal() {
     if(cart.length === 0) return showStatus("Your cart is empty!", 'info');
     closeModal('logsModal');
     openModal('PaymentModal');
+
 }
 function selectPayment(method) {
     document.getElementById("cashArea").style.display = (method === 'Cash' ? 'block' : 'none');
@@ -548,25 +537,39 @@ receipt += "-".repeat(MAX_WIDTH) + "\n"; // Separator line
             change: change, 
             items: items 
         });
-    }
+    }	
     // B. Send to Telegram
     if (typeof sendToTelegram === "function") {
         sendToTelegram(receipt);
+
     }
-    // --- 3. UI CLEANUP ---
-    cart = []; 
-	 if (typeof showStatus === "function") showStatus("Transaction Successful", "success");    
-	 if (typeof closeModal === "function") closeModal('PaymentModal');
-	 if (typeof renderCart === "function") renderCart();	
-	    // C. Web Print (Popup)
-    let p = window.open('', '', 'width=400,height=600');
-    p.document.write(`<html><head><style>pre{font-family:monospace;font-size:24px;white-space:pre;}</style></head>
-        <body onload="window.print(); window.close();"><pre>${receipt}</pre></body></html>`);
-    p.document.close();
-    // D. Bluetooth Print Intent
-    let encodedText = encodeURIComponent(receipt);
-    window.location.href = `intent://sendtext#Intent;action=android.intent.action.SEND;package=mate.bluetoothprint;S.android.intent.extra.TEXT=${encodedText};type=text/plain;end;`;	
+    // --- 3. UI CLEANUP & STATUS ---
+if (typeof showStatus === "function") {
+    // Show success message first
+    showStatus("Transaction Successful", "success");
+    okbtn.style.display = "none";
 }
+
+    // Create/Show the Print Button instead of auto-opening windows
+    // We pass the 'receipt' string to a global helper function
+    window.currentReceipt = receipt; 
+    
+    const printBtn = document.getElementById("manualPrintBtn");
+    if (printBtn) {
+        printBtn.style.display = "block"; // Make the button visible
+		
+	
+    }
+    // Clean up other UI elements
+	
+	if (typeof closeModal === "function") closeModal('StatusModal');
+    if (typeof closeModal === "function") closeModal('PaymentModal');
+    if (typeof renderCart === "function") renderCart();
+
+	
+
+}
+
 let attempts = 0;
 let lockUntil = 0;
 function applyDiscount() {
@@ -746,6 +749,25 @@ function showStatus(msg, type = 'info') {
     }   
     openModal('statusModal');
 }
+function showStatus1(msg, type = 'info') {
+    const modal = document.getElementById('Status1Modal');
+    const msgEl = document.getElementById('Status1Message');
+    const iconEl = document.getElementById('Status1Icon');    
+    msgEl.innerText = msg;   
+    // Change icon based on type
+    if (type === 'error') {
+        iconEl.className = "fas fa-exclamation-triangle";
+        iconEl.style.color = "#ff4444";
+    } else if (type === 'success') {
+        iconEl.className = "fas fa-check-circle";
+        iconEl.style.color = "#00ff00";
+    } else {
+        iconEl.className = "fas fa-info-circle";
+        iconEl.style.color = "#00C3FF";
+    }   
+    openModal('status1Modal');
+}
+
 function openModal(id) {
   document.getElementById(id).style.display = 'block';
 }
@@ -1033,6 +1055,22 @@ function clearTransactionLogs() {
     } else if (password !== null) {
         alert("❌ Incorrect Password. Access denied.");
     }
+}
+function triggerManualPrint() {
+    const receipt = window.currentReceipt;
+    if (!receipt) return alert("No receipt data found.");
+
+    // A. Web Print (Popup)
+    let p = window.open('', '', 'width=400,height=600');
+    p.document.write(`<html><head><style>pre{font-family:monospace;font-size:24px;white-space:pre;}</style></head>
+        <body onload="window.print(); window.close();"><pre>${receipt}</pre></body></html>`);
+    p.document.close();
+
+    // B. Bluetooth Print Intent
+    let encodedText = encodeURIComponent(receipt);
+    window.location.href = `intent://sendtext#Intent;action=android.intent.action.SEND;package=mate.bluetoothprint;S.android.intent.extra.TEXT=${encodedText};type=text/plain;end;`;
+	window.location.reload();
+
 }
 </script>
 </body>
