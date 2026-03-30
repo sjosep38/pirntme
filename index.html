@@ -339,7 +339,7 @@
             <div id="cashArea" style="display:none;">
                 <input type="number" id="cashInput" placeholder="Amount Received">
                 <p style="font-size: 1.2rem; text-align: center;">Change: <span id="changeText" style="color: #00ff00;">₱0.00</span></p>
-                <button class="btn-action btn-orange" style="width: 100%; margin-top: 10px;" onclick="confirmTransaction('Cash')">Confirm Cash Sale</button>
+                <button class="btn-action btn-orange" style="width: 100%; margin-top: 10px;" onclick="confirmTransaction('Cash')">Confirm Cash Payment</button>
             </div>
 
             <div id="cardArea" style="display:none;">
@@ -352,7 +352,7 @@
   pattern="^09\d{9}$" 
   maxlength="11" 
   required>
-                <button class="btn-action btn-orange" style="width: 100%; margin-top: 10px;" onclick="confirmTransaction('GCash')">Confirm GCash Sale</button>
+                <button class="btn-action btn-orange" style="width: 100%; margin-top: 10px;" onclick="confirmTransaction('GCash')">Confirm GCash Payment</button>
             </div>
 
             <button class="btn-action btn-gray" style="width: 100%; margin-top: 15px;" onclick="closeModal('PaymentModal'); openModal('logsModal');">Back to Cart</button>
