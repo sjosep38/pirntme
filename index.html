@@ -1122,18 +1122,38 @@ function showTxnHistory() {
             container.innerHTML = sales.map(s => {
                 let d = new Date(s.date);
                 return `
-                <div style="background: #222; border-radius: 20px; padding: 12px; margin-bottom: 10px; border-left: 10px solid  ${s.method === 'Cash' ? '#00C3FF' : '#ffcc00'}; font-size: 13px; border-right: 10px solid  ${s.method === 'Cash' ? '#00C3FF' : '#ffcc00'}; font-size: 13px;">
-                    <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span style="color: #888;">${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                        <strong style="color: #00ff00;">₱${s.amount.toFixed(2)}</strong>
-                    </div>
-                    <div style="color: #ccc; margin-bottom: 5px;"><strong>Codes:</strong> ${s.codes || 'N/A'}</div>
-                    <div style="display:flex; gap: 15px; font-size: 11px; color: #888;">
-                        <span>Payment Method: ${s.method}</span>
-                        <span>Received: ₱${s.received ? s.received.toFixed(2) : '0.00'}</span>
-                        <span>Change: ₱${s.change ? s.change.toFixed(2) : '0.00'}</span>
-                    </div>
-                </div>`;
+<div style="background: #222; border-radius: 20px; padding: 12px; margin-bottom: 10px; border-left: 10px solid ${s.method === 'Cash' ? '#00C3FF' : '#ffcc00'}; border-right: 10px solid ${s.method === 'Cash' ? '#00C3FF' : '#ffcc00'}; font-size: 13px;">
+    
+    <div style="display:flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="color: #888;">${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+        <strong style="color: #00ff00; font-size: 15px;">₱${s.amount.toFixed(2)}</strong>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <div style="color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">Codes:</div>
+        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; padding-right: 5px;">
+            ${(s.codes || 'N/A').split(',').map(code => `
+                <div style="
+                    background: rgba(255, 255, 255, 0.05); 
+                    color: #fff; 
+                    padding: 6px 10px; 
+                    border-radius: 8px; 
+                    font-family: monospace; 
+                    font-size: 14px; 
+                    border-left: 3px solid rgba(255, 255, 255, 0.2);
+                ">
+                    ${code.trim()}
+                </div>
+            `).join('')}
+        </div>
+    </div>
+
+    <div style="display:flex; gap: 15px; font-size: 11px; color: #888; border-top: 1px solid #333; padding-top: 8px;">
+        <span>Payment: ${s.method}</span>
+        <span>Received: ₱${s.received ? s.received.toFixed(2) : '0.00'}</span>
+        <span>Change: ₱${s.change ? s.change.toFixed(2) : '0.00'}</span>
+    </div>
+</div>`;
             }).join("");
         }
         openModal('txnHistoryModal');
