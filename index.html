@@ -578,12 +578,12 @@ receipt += center("4th Avenue Caloocan city");
 receipt += center("Mobile: 0950 682 5698");
 receipt += "-".repeat(MAX_WIDTH) + "\n"; // Separator line
     receipt += `${new Date().toLocaleString()}\n`;
-    receipt += `Payment: ${method}\n`;
+    receipt += `Payment Method: ${method}\n`;
     receipt += line;
 
     // Items Section
     items.forEach(i => {
-        let label = `${i.name} [${i.code}]`;
+        let label = `${i.name} [ ${i.code} ]`;
         let price = i.price.toFixed(2);
         if ((label.length + price.length) >= MAX_WIDTH) {
             receipt += `${label}\n${price.padStart(MAX_WIDTH)}\n`;
@@ -609,7 +609,7 @@ receipt += "-".repeat(MAX_WIDTH) + "\n"; // Separator line
     
     receipt += line;
     receipt += `Voucher Code is not Transferable\n`;
-    receipt += `Thank you for your Purchase!\n\n\n`;
+    receipt += `  Thank you for your Purchase!\n\n\n`;
 
     // --- 2. EXECUTE ACTIONS ---
 
@@ -632,9 +632,11 @@ receipt += "-".repeat(MAX_WIDTH) + "\n"; // Separator line
 
     // --- 3. UI CLEANUP ---
     cart = []; 
-    if (typeof renderCart === "function") renderCart();
-    if (typeof closeModal === "function") closeModal('PaymentModal');
-    if (typeof showStatus === "function") showStatus("Transaction Successful", "success");
+	 if (typeof showStatus === "function") showStatus("Transaction Successful", "success");
+     
+	 if (typeof closeModal === "function") closeModal('PaymentModal');
+	 if (typeof renderCart === "function") renderCart();
+   
 	
 	    // C. Web Print (Popup)
     let p = window.open('', '', 'width=400,height=600');
@@ -679,13 +681,13 @@ function applyDiscount() {
     } else {
         attempts++;
 
-        if (attempts >= 3) {
+        if (attempts >= 5) {
             lockUntil = Date.now() + 60 * 1000; // 1 minute lock
             attempts = 0;
 
             alert("⛔ Too many failed attempts. Discount locked! Try again later.");
         } else {
-            alert(`❌ Incorrect password. Attempts left: ${3 - attempts}`);
+            alert(`❌ Incorrect password. Attempts left: ${5 - attempts}`);
         }
     }
 }
@@ -1127,8 +1129,8 @@ function showTxnHistory() {
                     </div>
                     <div style="color: #ccc; margin-bottom: 5px;"><strong>Codes:</strong> ${s.codes || 'N/A'}</div>
                     <div style="display:flex; gap: 15px; font-size: 11px; color: #888;">
-                        <span>Method: ${s.method}</span>
-                        <span>Paid: ₱${s.cash ? s.cash.toFixed(2) : '0.00'}</span>
+                        <span>Payment Method: ${s.method}</span>
+                        <span>Paid: ₱${s.received ? s.received.toFixed(2) : '0.00'}</span>
                         <span>Change: ₱${s.change ? s.change.toFixed(2) : '0.00'}</span>
                     </div>
                 </div>`;
