@@ -603,41 +603,44 @@ function applyDiscount() {
 async function processBulkUpload() {
     const targetProduct = document.getElementById('bulkTarget').value;
     const fileInput = document.getElementById('fileInput');
-    const manualArea = document.getElementById('manualCodes');   
+    const manualArea = document.getElementById('manualCodes');
+    
+    // Find the price of the selected product from your products array
+    const productInfo = products.find(p => p.name === targetProduct);
+    const price = productInfo ? productInfo.price : 0;
+
     let rawText = "";
-    // 1. Check if a file was uploaded
     if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        rawText = await file.text();
+        rawText = await fileInput.files[0].text();
     } else {
-        // 2. Otherwise use the manual textarea
         rawText = manualArea.value;
     }
+
     if (!rawText.trim()) {
-        alert("Please upload a .txt file or paste codes into the box first.");
+        showStatus("Please provide codes first.", 'error');
         return;
     }
-    // Split by lines or spaces and filter out empty strings
+
     const codes = rawText.split(/[\s\n,]+/).filter(c => c.trim() !== "");
-    if (codes.length === 0) {
-       showStatus("No valid codes found in file.", 'error');
-        return;
-    }
-    // Save to IndexedDB
+
     const tx = db.transaction("vouchers", "readwrite");
     const store = tx.objectStore("vouchers");
+
     codes.forEach(code => {
-        store.add({ name: targetProduct, code: code.trim() });
+        // We now store the price directly with the voucher
+        store.add({ 
+            name: targetProduct, 
+            code: code.trim(), 
+            price: price, // Added price here
+            timestamp: Date.now() 
+        });
     });
+
     tx.oncomplete = () => {
-        showStatus("Successfully uploaded " + codes.length + " codes!", 'success');
-        // Clear inputs
+        showStatus(`Successfully uploaded ${codes.length} codes for ${targetProduct} (₱${price.toFixed(2)})`, 'success');
         fileInput.value = "";
         manualArea.value = "";
-        renderProducts(); // Refresh UI
-    };
-    tx.onerror = () => {
-        alert("Error saving codes to database.");
+        renderProducts(); 
     };
 }
 // Keep your existing checkInventory function to verify the upload
@@ -985,7 +988,7 @@ function showTxnHistory() {
     </div>
     <div style="margin-bottom: 10px;">
         <div style="color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">Voucher Code (s):</div>
-        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 75px; min-height: 75px; overflow-y: auto; padding-right: 5px;">
+        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 75px; overflow-y: auto; padding-right: 5px;">
             ${(s.codes || 'N/A').split(',').map(code => `
                 <div style="
                     background: rgba(255, 255, 255, 0.05); 
