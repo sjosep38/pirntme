@@ -168,13 +168,83 @@
 .inventory-table tr:hover {
     background-color: orange;
 }
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between; /* Keeps title left and actions right */
+  align-items: center;
+  background-color: #121212;
+  border-bottom: 1px solid #2d2d2d;
+  color: #fff;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between search bar and menu button */
+}
+
+.search-container {
+  position: relative;
+  width: 250px; /* Adjusted width for a clean right-side look */
+  transition: width 0.3s ease;
+}
+
+/* Expands slightly when typing */
+.search-container:focus-within {
+  width: 300px;
+}
+
+#dashboard-search {
+  width: 100%;
+  padding: 7px 12px 7px 35px;
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 20px; /* Rounded pill shape looks great on the right */
+  color: #fff;
+  outline: none;
+}
+
+#dashboard-search:focus {
+  border-color: #007bff;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  opacity: 0.5;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
     </style>
 </head>
 <body>
-<h3 class="dashboard-header">
-  <span>Dashboard</span>
-  <button class="nav-btn">☰</button>
-</h3>
+<header class="dashboard-header">
+  <span class="header-title">Dashboard</span>
+  
+  <div class="header-actions">
+    <div class="search-container">
+      <input type="text" id="dashboard-search" placeholder="Search..." aria-label="Search">
+      <span class="search-icon">🔍</span>
+    </div>
+    <button class="nav-btn" aria-label="Toggle Navigation">☰</button>
+  </div>
+</header>
 <div class="main-wrapper">
     <div class="container">
         <div class="products-section">
@@ -1075,6 +1145,23 @@ function triggerManualPrint() {
 	window.location.reload();
 
 }
+// 1. Create a connection to the server
+const socket = new WebSocket('ws://pirntme.pages.dev/socket');
+
+// 2. Connection opened
+socket.addEventListener('open', (event) => {
+    socket.send('Hello Server!');
+});
+
+// 3. Listen for messages
+socket.addEventListener('message', (event) => {
+    console.log('Message from server:', event.data);
+});
+
+// 4. Handle errors
+socket.addEventListener('error', (error) => {
+    console.error('WebSocket Error:', error);
+});
 </script>
 </body>
 </html>
